@@ -359,6 +359,7 @@
         let editIndex = null;
 
         // Obtener el siguiente número de mesa disponible
+         // Obtener el siguiente número de mesa disponible
         function obtenerSiguienteNumeroMesa() {
             if (mesas.length === 0) return 1;
             const max = Math.max(...mesas.map(m => Number(m.numero)));
@@ -381,11 +382,27 @@
             const cantidad = document.getElementById("modal-cantidad").value;
             const ubicacion = document.getElementById("modal-ubicacion").value;
             const estado = document.getElementById("modal-estado").value;
+     let isValid = true;
+    document.getElementById("errorNombre1").style.display = "none";
+    document.getElementById("errorNombre2").style.display = "none";
+
+            
+if(cantidad <= 0){
+                document.getElementById("modal-cantidad").classList.add('input-error');
+                document.getElementById("errorNombre1").style.display = 'block';
+ document.getElementById("errorNombre2").textContent = "⚠️El numero tiene que ser mayor a 0.";
+                isValid = false;
+}else{
 
             if (!numero || !cantidad || !ubicacion) {
-                alert("Complete todos los campos");
-                return;
+ document.getElementById("modal-ubicacion").classList.add('input-error');
+ document.getElementById("modal-cantidad").classList.add('input-error');
+ document.getElementById("modal-estado").classList.add('input-error');
+                document.getElementById("errorNombre2").style.display = 'block';
+ document.getElementById("errorNombre2").textContent = "⚠️ Todos los campos son obligatorios.";
+isValid = false;
             }
+else{
 
             if (editIndex === null) {
                 const reg = { numero, cantidad, ubicacion, estado };
@@ -402,6 +419,8 @@
             pintarDatos();
             actualizarEstadisticas();
             bootstrap.Modal.getInstance(document.getElementById("modalMesas")).hide();
+        }
+        }
         };
 
         // Actualizar el select de mesas disponibles
@@ -752,4 +771,5 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
+
 
