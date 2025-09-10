@@ -202,6 +202,15 @@
                                 <input type="date" id="Datereserva" class="form-control">
                                 <div id="errorNombre2" class="error-message">⚠️ La fecha es obligatoria</div>
                             </div>
+
+                             <div class="col-md-6 mb-3">
+                                <label for="hora">Selecciona una hora:</label>
+  <input type="time" id="hora">
+
+  <!-- Botón para guardar la hora seleccionada -->
+  <button id="btnGuardar" onclick="guardarHora()">Guardar hora</button>
+
+  <p id="contador"></p></div>
                             
                             <div class="col-md-6 mb-3">
                                 <label for="ocasiones-especiales" class="form-label">Ocasión especial</label>
@@ -519,7 +528,46 @@
                 el.classList.remove('input-error');
             });
         }
+  let timer; 
+    let horaGuardada = null; 
 
+    // Función que se llama al hacer clic en el botón "Guardar"
+    function guardarHora() {
+      const horaSeleccionada = document.getElementById("hora").value;
+      const contador = document.getElementById("contador");
+
+      if (!horaSeleccionada) {
+        alert("⚠️ Debes seleccionar una hora primero.");
+        return;
+      }
+
+      if (horaSeleccionada >= "08:00" && horaSeleccionada <= "20:00") {
+        horaGuardada = horaSeleccionada;
+        const startTime = Date.now();
+        startTimer(startTime);
+      } else {
+        Swal.fire("⚠️ La hora seleccionada está fuera del horario (8:00 AM - 8:00 PM)");
+
+      }
+    }
+
+    // Función para iniciar el temporizador
+    function startTimer(startTime) {
+      clearInterval(timer); // 
+
+      timer = setInterval(function () {
+        const elapsedTime = Date.now() - startTime;
+        const minutesElapsed = Math.floor(elapsedTime / 60000);
+
+        document.getElementById("contador").textContent = `⏳ Tiempo transcurrido: ${minutesElapsed} minutos`;
+
+        if (minutesElapsed >= 120) {
+          clearInterval(timer); // Detener el temporizador después de 2 horas
+          Swal.fire("Tiempo cumplido de 2 horas");
+          document.getElementById("contador").textContent = "⏰ Tiempo cumplido.";
+        }
+      }, 60000); // Cada minuto
+    }
         // Guardar reserva
         function guardarNew() {
             // Validaciones
@@ -571,10 +619,11 @@
             
             pintarDatos();
             pintarDatosNew();
+            guardarHora();
             actualizarEstadisticas();
             ocultarFormularioNew();
             
-            alert("Reserva guardada con éxito!");
+           Swal.fire("Reserva guardada exitosamente");
         }
 
         // Pintar reservas en la tabla
@@ -671,7 +720,7 @@
             const today = new Date().toISOString().split('T')[0];
             const reservasHoy = datos.filter(r => r.fecha === today);
             const reservasHoyContainer = document.getElementById("reservas-hoy");
-            
+
             if (reservasHoy.length === 0) {
                 reservasHoyContainer.innerHTML = '<div class="text-center p-3 border rounded">No hay reservas para hoy</div>';
             } else {
@@ -700,5 +749,7 @@
             document.getElementById("btnGuardarModal").addEventListener("click", guardarDesdeModal);
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
+
