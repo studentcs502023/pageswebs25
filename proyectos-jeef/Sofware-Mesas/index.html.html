@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestión de Mesas y Reservas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -136,6 +137,17 @@
             display: none;
         }
         
+        .temporizador-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .temporizador-activo {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
         @media (max-width: 768px) {
             .mesas-grid {
                 grid-template-columns: 1fr;
@@ -158,7 +170,7 @@
                         + Agregar Mesa
                     </button>
                 </div>
-                
+           
                 <div id="bodyData" class="mesas-grid"></div>
                 
                 <div class="form-container">
@@ -202,15 +214,22 @@
                                 <input type="date" id="Datereserva" class="form-control">
                                 <div id="errorNombre2" class="error-message">⚠️ La fecha es obligatoria</div>
                             </div>
-
-                             <div class="col-md-6 mb-3">
-                                <label for="hora">Selecciona una hora:</label>
-  <input type="time" id="hora">
-
-  <!-- Botón para guardar la hora seleccionada -->
-  <button id="btnGuardar" onclick="guardarHora()">Guardar hora</button>
-
-  <p id="contador"></p></div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="hora-reserva" class="form-label">Hora de reserva</label>
+                                <input type="time" id="hora-reserva" class="form-control" min="08:00" max="20:00">
+                                <div id="errorHora" class="error-message">⚠️ La hora es obligatoria (entre 8:00 y 20:00)</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="duracion-reserva" class="form-label">Duración estimada</label>
+                                <select id="duracion-reserva" class="form-select">
+                                    <option value="60">1 hora</option>
+                                    <option value="120" selected>2 horas</option>
+                                    <option value="180">3 horas</option>
+                                    <option value="240">4 horas</option>
+                                </select>
+                            </div>
                             
                             <div class="col-md-6 mb-3">
                                 <label for="ocasiones-especiales" class="form-label">Ocasión especial</label>
@@ -263,9 +282,12 @@
                                         <th>Cliente</th>
                                         <th>Personas</th>
                                         <th>Fecha</th>
+                                        <th>Hora</th>
+                                        <th>Duración</th>
                                         <th>Ocasión</th>
                                         <th>Notas</th>
                                         <th>Estado</th>
+                                        <th>Tiempo</th>
                                         <th>Opciones</th>
                                     </tr>
                                 </thead>
@@ -300,6 +322,10 @@
                             <!-- Las reservas de hoy se cargarán aquí -->
                         </div>
                     </div>
+                    <div class="filter mt-4">
+                        <h4>Reservas ocupadas y pendientes</h4>
+                        <div id="filtroConfirmadas"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -321,6 +347,7 @@
                     <div class="mb-3">
                         <label for="modal-cantidad" class="form-label">Cantidad de personas</label>
                         <input type="number" id="modal-cantidad" class="form-control" required min="1">
+                        <div id="errorCantidad" class="error-message">⚠️ La cantidad debe ser mayor a 0</div>
                     </div>
                     <div class="mb-3">
                         <label for="modal-ubicacion" class="form-label">Ubicación</label>
@@ -357,6 +384,90 @@
         let mesas = JSON.parse(localStorage.getItem("mesas"));
         let datos = JSON.parse(localStorage.getItem("reservas"));
         let editIndex = null;
+        let temporizadoresActivos = {};
+
+        // ==================== FUNCIONES DEL TEMPORIZADOR ====================
+        
+        // Iniciar temporizador para una reserva
+        function iniciarTemporizador(reservaId, startTime, duracionMinutos) {
+            // Limpiar temporizador existente si hay uno
+            if (temporizadoresActivos[reservaId]) {
+                clearInterval(temporizadoresActivos[reservaId]);
+            }
+            
+            const ahora = Date.now();
+            const tiempoTranscurrido = Math.floor((ahora - startTime) / 6); // en minutos
+            
+            // Si ya pasó el tiempo límite
+            if (tiempoTranscurrido >= duracionMinutos) {
+                document.querySelector(`#temporizador-${reservaId}`).innerHTML = 
+                    `<span class="temporizador-activo">⏰ Tiempo cumplido</span>`;
+                return;
+            }
+            
+            // Actualizar contador inmediatamente
+            actualizarContadorTemporizador(reservaId, startTime, duracionMinutos);
+            
+            // Configurar intervalo para actualizar cada minuto
+            temporizadoresActivos[reservaId] = setInterval(() => {
+                actualizarContadorTemporizador(reservaId, startTime, duracionMinutos);
+            }, 6);
+        }
+        
+        // Actualizar visualización del contador
+        function actualizarContadorTemporizador(reservaId, startTime, duracionMinutos) {
+            const ahora = Date.now();
+            const tiempoTranscurrido = Math.floor((ahora - startTime) / 6); // en minutos
+            const tiempoRestante = duracionMinutos - tiempoTranscurrido;
+            
+            const elemento = document.querySelector(`#temporizador-${reservaId}`);
+            if (!elemento) return;
+            
+            if (tiempoRestante <= 0) {
+                elemento.innerHTML = `<span class="temporizador-activo">⏰ Tiempo cumplido</span>`;
+                clearInterval(temporizadoresActivos[reservaId]);
+                delete temporizadoresActivos[reservaId];
+                
+                // Cambiar estado a "Finalizada" cuando se cumple el tiempo
+                const reservaIndex = datos.findIndex(r => r.id == reservaId);
+                if (reservaIndex !== -1) {
+                    datos[reservaIndex].estado = "Finalizada";
+                    localStorage.setItem("reservas", JSON.stringify(datos));
+                    
+                    // Liberar la mesa
+                    const mesaIndex = mesas.findIndex(m => m.numero == datos[reservaIndex].mesa);
+                    if (mesaIndex !== -1) {
+                        mesas[mesaIndex].estado = "Libre";
+                        localStorage.setItem("mesas", JSON.stringify(mesas));
+                        pintarDatos();
+                    }
+                    
+                    pintarDatosNew();
+                    actualizarEstadisticas();
+                }
+            } else {
+                elemento.innerHTML = `⌛ ${tiempoRestante} min restantes`;
+                
+                // Cambiar color si queda poco tiempo (menos de 15 minutos)
+                if (tiempoRestante < 15) {
+                    elemento.classList.add('temporizador-activo');
+                } else {
+                    elemento.classList.remove('temporizador-activo');
+                }
+            }
+        }
+        
+        // Recuperar temporizadores al cargar la página
+        function recuperarTemporizadores() {
+            datos.forEach(reserva => {
+                if (reserva.startTime && reserva.duracion && 
+                    (reserva.estado === "Confirmada" || reserva.estado === "Ocupada")) {
+                    iniciarTemporizador(reserva.id, parseInt(reserva.startTime), parseInt(reserva.duracion));
+                }
+            });
+        }
+        
+        // ==================== FUNCIONES EXISTENTES MODIFICADAS ====================
 
         // Obtener el siguiente número de mesa disponible
         function obtenerSiguienteNumeroMesa() {
@@ -373,6 +484,10 @@
             document.getElementById("modal-cantidad").value = "";
             document.getElementById("modal-ubicacion").value = "";
             document.getElementById("modal-estado").value = "Libre";
+            
+            // Limpiar errores
+            document.getElementById("errorCantidad").style.display = "none";
+            document.getElementById("modal-cantidad").classList.remove("input-error");
         });
 
         // Guardar mesa desde el modal
@@ -381,12 +496,22 @@
             const cantidad = document.getElementById("modal-cantidad").value;
             const ubicacion = document.getElementById("modal-ubicacion").value;
             const estado = document.getElementById("modal-estado").value;
-
-            if (!numero || !cantidad || !ubicacion) {
-                alert("Complete todos los campos");
-                return;
+            let isValid = true;
+            
+            // Validaciones
+            if (!cantidad || cantidad <= 0) {
+                document.getElementById("modal-cantidad").classList.add('input-error');
+                document.getElementById("errorCantidad").style.display = 'block';
+                isValid = false;
             }
-
+            
+            if (!ubicacion) {
+                document.getElementById("modal-ubicacion").classList.add('input-error');
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
             if (editIndex === null) {
                 const reg = { numero, cantidad, ubicacion, estado };
                 mesas.push(reg);
@@ -401,7 +526,10 @@
             localStorage.setItem("mesas", JSON.stringify(mesas));
             pintarDatos();
             actualizarEstadisticas();
-            bootstrap.Modal.getInstance(document.getElementById("modalMesas")).hide();
+            
+            // Cerrar modal usando Bootstrap
+            const modal = bootstrap.Modal.getInstance(document.getElementById("modalMesas"));
+            modal.hide();
         };
 
         // Actualizar el select de mesas disponibles
@@ -457,6 +585,16 @@
 
         // Reservar una mesa
         function reservarMesa(i) {
+            // Verificar si la mesa ya está ocupada por una reserva confirmada
+            if (mesas[i].estado === "Ocupada") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Mesa no disponible',
+                    text: 'Esta mesa ya está ocupada por una reserva confirmada'
+                });
+                return;
+            }
+            
             mesas[i].estado = "Ocupada";
             localStorage.setItem("mesas", JSON.stringify(mesas));
             pintarDatos();
@@ -477,17 +615,39 @@
             document.getElementById("modal-estado").value = mesa.estado;
             
             document.getElementById("modalMesasLabel").textContent = "Editar mesa";
-            new bootstrap.Modal(document.getElementById("modalMesas")).show();
+            
+            // Limpiar errores
+            document.getElementById("errorCantidad").style.display = "none";
+            document.getElementById("modal-cantidad").classList.remove("input-error");
+            
+            const modal = new bootstrap.Modal(document.getElementById("modalMesas"));
+            modal.show();
         };
 
         // Eliminar una mesa
         window.eliminarMesa = (i) => {
-            if (confirm("¿Está seguro de eliminar esta mesa?")) {
-                mesas.splice(i, 1);
-                localStorage.setItem("mesas", JSON.stringify(mesas));
-                pintarDatos();
-                actualizarEstadisticas();
-            }
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: "Esta acción no se puede deshacer",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    mesas.splice(i, 1);
+                    localStorage.setItem("mesas", JSON.stringify(mesas));
+                    pintarDatos();
+                    actualizarEstadisticas();
+                    Swal.fire(
+                        'Eliminada!',
+                        'La mesa ha sido eliminada.',
+                        'success'
+                    );
+                }
+            });
         };
 
         // Mostrar formulario de reserva
@@ -501,6 +661,13 @@
             // Establecer fecha mínima como hoy
             const today = new Date().toISOString().split('T')[0];
             document.getElementById("Datereserva").setAttribute('min', today);
+            document.getElementById("Datereserva").value = today;
+            
+            // Establecer hora actual por defecto
+            const ahora = new Date();
+            const horas = ahora.getHours().toString().padStart(2, '0');
+            const minutos = ahora.getMinutes().toString().padStart(2, '0');
+            document.getElementById("hora-reserva").value = `${horas}:${minutos}`;
         }
 
         // Ocultar formulario de reserva
@@ -516,6 +683,7 @@
             document.getElementById("nombreCliente").value = "";
             document.getElementById("NumReservas").value = "";
             document.getElementById("Datereserva").value = "";
+            document.getElementById("hora-reserva").value = "";
             document.getElementById("Notas").value = "";
             document.getElementById("estado").value = "Pendiente";
             document.getElementById("select-mesa").value = "";
@@ -528,46 +696,7 @@
                 el.classList.remove('input-error');
             });
         }
-  let timer; 
-    let horaGuardada = null; 
 
-    // Función que se llama al hacer clic en el botón "Guardar"
-    function guardarHora() {
-      const horaSeleccionada = document.getElementById("hora").value;
-      const contador = document.getElementById("contador");
-
-      if (!horaSeleccionada) {
-        alert("⚠️ Debes seleccionar una hora primero.");
-        return;
-      }
-
-      if (horaSeleccionada >= "08:00" && horaSeleccionada <= "20:00") {
-        horaGuardada = horaSeleccionada;
-        const startTime = Date.now();
-        startTimer(startTime);
-      } else {
-        Swal.fire("⚠️ La hora seleccionada está fuera del horario (8:00 AM - 8:00 PM)");
-
-      }
-    }
-
-    // Función para iniciar el temporizador
-    function startTimer(startTime) {
-      clearInterval(timer); // 
-
-      timer = setInterval(function () {
-        const elapsedTime = Date.now() - startTime;
-        const minutesElapsed = Math.floor(elapsedTime / 60000);
-
-        document.getElementById("contador").textContent = `⏳ Tiempo transcurrido: ${minutesElapsed} minutos`;
-
-        if (minutesElapsed >= 120) {
-          clearInterval(timer); // Detener el temporizador después de 2 horas
-          Swal.fire("Tiempo cumplido de 2 horas");
-          document.getElementById("contador").textContent = "⏰ Tiempo cumplido.";
-        }
-      }, 60000); // Cada minuto
-    }
         // Guardar reserva
         function guardarNew() {
             // Validaciones
@@ -591,71 +720,180 @@
                 isValid = false;
             }
             
+            // Validar hora de reserva (entre 8:00 y 20:00)
+            const horaReserva = document.getElementById("hora-reserva").value;
+            if (!horaReserva) {
+                document.getElementById("hora-reserva").classList.add('input-error');
+                document.getElementById("errorHora").style.display = 'block';
+                isValid = false;
+            } else if (horaReserva < "08:00" || horaReserva > "20:00") {
+                document.getElementById("hora-reserva").classList.add('input-error');
+                document.getElementById("errorHora").textContent = "⚠️ El horario debe ser entre 8:00 AM y 8:00 PM";
+                document.getElementById("errorHora").style.display = 'block';
+                isValid = false;
+            }
+            
             if (!isValid) return;
+            
+            // Verificar si la mesa seleccionada sigue disponible
+            const mesaSeleccionada = document.getElementById("select-mesa").value;
+            const mesaIndex = mesas.findIndex(m => m.numero == mesaSeleccionada);
+            
+
+
+            
+            if (mesaIndex === -1 || mesas[mesaIndex].estado !== "Libre") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Mesa no disponible',
+                    text: 'La mesa seleccionada ya no está disponible. Por favor, elija otra mesa.'
+                });
+                return;
+            }
             
             // Crear objeto de reserva
             let reg = {
                 id: document.getElementById("idreserva").value,
-                mesa: document.getElementById("select-mesa").value,
+                mesa: mesaSeleccionada,
                 cliente: document.getElementById("nombreCliente").value,
                 personas: document.getElementById("NumReservas").value,
                 fecha: document.getElementById("Datereserva").value,
+                hora: document.getElementById("hora-reserva").value,
+                duracion: document.getElementById("duracion-reserva").value,
                 ocasion: document.getElementById("ocasiones-especiales").value,
                 notas: document.getElementById("Notas").value,
-                estado: document.getElementById("estado").value
+                estado: document.getElementById("estado").value,
+                // Guardar timestamp de inicio si la reserva está confirmada u ocupada
+                startTime: (document.getElementById("estado").value === "Confirmada" || 
+                           document.getElementById("estado").value === "Ocupada") ? Date.now() : null
             };
             
             datos.push(reg);
             localStorage.setItem("reservas", JSON.stringify(datos));
             
+
+            if (reg.estado === "Confirmada" || reg.estado === "Ocupada" || reg.estado === "Pendiente") {
+    mesas[mesaIndex].estado = "Ocupada";
+    localStorage.setItem("mesas", JSON.stringify(mesas));
+
+    // Iniciar temporizador solo para reservas Confirmadas u Ocupadas
+    if (reg.estado === "Confirmada" || reg.estado === "Ocupada") {
+        iniciarTemporizador(reg.id, reg.startTime, parseInt(reg.duracion));
+    }
+}
             // Actualizar estado de la mesa si está reservada
-            if (reg.estado === "Confirmada") {
-                const mesaIndex = mesas.findIndex(m => m.numero == reg.mesa);
-                if (mesaIndex !== -1) {
-                    mesas[mesaIndex].estado = "Ocupada";
-                    localStorage.setItem("mesas", JSON.stringify(mesas));
-                }
-            }
             
             pintarDatos();
             pintarDatosNew();
-            guardarHora();
             actualizarEstadisticas();
             ocultarFormularioNew();
             
-           Swal.fire("Reserva guardada exitosamente");
+            Swal.fire('Reserva guardada con éxito!', '', 'success');
         }
 
         // Pintar reservas en la tabla
         function pintarDatosNew() {
             const infoData = document.getElementById("infoData");
-            infoData.innerHTML = "";
-            
+            const filtroConfirmadas = document.getElementById("filtroConfirmadas");
+
+            infoData.innerHTML = "";         // Limpia tabla principal
+            filtroConfirmadas.innerHTML = ""; // Limpia la sección de confirmadas
+
             datos.forEach((item, i) => {
+                // 🎯 Crear fila normal
                 let tr = document.createElement("tr");
+                
+                // Calcular tiempo transcurrido si hay startTime
+                let tiempoInfo = "";
+                if (item.startTime && (item.estado === "Confirmada" || item.estado === "Ocupada")) {
+                    tiempoInfo = `<td id="temporizador-${item.id}" class="temporizador-info">⌛ Calculando...</td>`;
+                } else {
+                    tiempoInfo = "<td>-</td>";
+                }
+                
                 tr.innerHTML = `
                     <td>${item.id}</td>
                     <td>${item.mesa}</td>
                     <td>${item.cliente}</td>
                     <td>${item.personas}</td>
                     <td>${item.fecha}</td>
+                    <td>${item.hora || '-'}</td>
+                    <td>${item.duracion ? (item.duracion / 6) + ' h' : '-'}</td>
                     <td>${item.ocasion}</td>
                     <td>${item.notas}</td>
                     <td>
                         <span class="badge ${item.estado === 'Confirmada' ? 'bg-success' : 
-                                          item.estado === 'Pendiente' ? 'bg-warning' : 
-                                          item.estado === 'Cancelada' ? 'bg-danger' : 'bg-secondary'}">
+                                        item.estado === 'Pendiente' ? 'bg-warning' : 
+                                        item.estado === 'Cancelada' ? 'bg-danger' : 
+                                        item.estado === 'Ocupada' ? 'bg-primary' : 'bg-secondary'}">
                             ${item.estado}
                         </span>
                     </td>
+                    ${tiempoInfo}
                     <td>
                         <button class="btn btn-warning btn-sm" onclick="editarReservaNew(${i})">✏️ Editar</button>
                         <button class="btn btn-danger btn-sm" onclick="eliminarReservaNew(${i})">🗑️ Eliminar</button>
-                        ${item.estado === 'Confirmada' ? 
-                          `<button class="btn btn-success btn-sm mt-1" onclick="pagarCuenta(${i})">💵 Pagar</button>` : ''}
+                        ${item.estado === 'Confirmada' || item.estado === 'Ocupada' ? 
+                        `<button class="btn btn-success btn-sm mt-1" onclick="pagarCuenta(${i})">💵 Pagar</button>` : ''}
                     </td>
                 `;
                 infoData.appendChild(tr);
+
+                // Iniciar temporizador si corresponde
+                if (item.startTime && (item.estado === "Confirmada" || item.estado === "Ocupada")) {
+                    iniciarTemporizador(item.id, parseInt(item.startTime), parseInt(item.duracion));
+                }
+
+                // 🎯 Si es confirmada u ocupada, agregamos su info a la sección especial
+                if (item.estado === "Confirmada" || item.estado === "Pendiente") {
+                    let div = document.createElement("div");
+                    div.classList.add("card", "p-2", "mb-2", "border", "rounded");
+                    
+                    if (item.estado === "Confirmada") {
+                        div.classList.add("border-success");
+                        div.style.background = "linear-gradient(to right, #ffe259, #ffa751)";
+                    } else {
+                        div.classList.add("border-primary");
+                        div.style.background = "linear-gradient(to right, #4facfe, #00f2fe)";
+                        div.style.color = "white";
+                    }
+                    
+                    // Calcular tiempo restante si hay startTime
+                    let tiempoRestanteInfo = "";
+                    if (item.startTime && item.duracion) {
+                        const ahora = Date.now();
+                        const tiempoTranscurrido = Math.floor((ahora - item.startTime) / 60000);
+                        const tiempoRestante = item.duracion - tiempoTranscurrido;
+                        
+                        if (tiempoRestante > 0) {
+                            tiempoRestanteInfo = `<br><strong>Tiempo restante:</strong> ${tiempoRestante} minutos`;
+                        } else {
+                            tiempoRestanteInfo = `<br><strong class="temporizador-activo">⏰ Tiempo cumplido</strong>`;
+                        }
+                    }
+                    
+                    div.innerHTML = `
+                        <h4>Mesa ${item.estado.toLowerCase()}</h4>
+                        <strong>Mesa:</strong> ${item.mesa} |
+                        <strong>Cliente:</strong> ${item.cliente} |
+                        <strong>Hora:</strong> ${item.hora}${tiempoRestanteInfo}
+                    `;
+
+                    filtroConfirmadas.appendChild(div);
+                } else if (item.estado === "Pendiente") {
+                    let div2 = document.createElement("div");
+                    div2.classList.add("card", "p-2", "mb-2", "border", "border-warning", "rounded");
+                    div2.style.background = "rgb(255, 255, 200)";
+                    div2.innerHTML = `
+                        <h4>Reserva Pendiente</h4>
+                        <strong>Mesa:</strong> ${item.mesa} |
+                        <strong>Cliente:</strong> ${item.cliente} |
+                        <strong>Fecha:</strong> ${item.fecha} |
+                        <strong>Hora:</strong> ${item.hora}
+                    `;
+
+                    filtroConfirmadas.appendChild(div2);
+                }
             });
         }
 
@@ -668,6 +906,8 @@
             document.getElementById("nombreCliente").value = item.cliente;
             document.getElementById("NumReservas").value = item.personas;
             document.getElementById("Datereserva").value = item.fecha;
+            document.getElementById("hora-reserva").value = item.hora || "";
+            document.getElementById("duracion-reserva").value = item.duracion || "120";
             document.getElementById("ocasiones-especiales").value = item.ocasion;
             document.getElementById("Notas").value = item.notas;
             document.getElementById("estado").value = item.estado;
@@ -682,18 +922,58 @@
 
         // Eliminar reserva
         function eliminarReservaNew(i) {
-            if (confirm("¿Está seguro de eliminar esta reserva?")) {
-                datos.splice(i, 1);
-                localStorage.setItem("reservas", JSON.stringify(datos));
-                pintarDatosNew();
-                actualizarEstadisticas();
-            }
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: "Esta acción no se puede deshacer",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Detener temporizador si está activo
+                    const reservaId = datos[i].id;
+                    if (temporizadoresActivos[reservaId]) {
+                        clearInterval(temporizadoresActivos[reservaId]);
+                        delete temporizadoresActivos[reservaId];
+                    }
+                    
+                    // Liberar la mesa si la reserva estaba activa
+                
+                    if (datos[i].estado === "Confirmada" || datos[i].estado === "Ocupada" || datos[i].estado === "Pendiente") {
+    const mesaIndex = mesas.findIndex(m => m.numero == datos[i].mesa);
+    if (mesaIndex !== -1) {
+        mesas[mesaIndex].estado = "Libre";
+        localStorage.setItem("mesas", JSON.stringify(mesas));
+        pintarDatos();
+    }
+}
+                    
+                    datos.splice(i, 1);
+                    localStorage.setItem("reservas", JSON.stringify(datos));
+                    pintarDatosNew();
+                    actualizarEstadisticas();
+                    Swal.fire(
+                        'Eliminada!',
+                        'La reserva ha sido eliminada.',
+                        'success'
+                    );
+                }
+            });
         }
 
         // Pagar cuenta
         function pagarCuenta(i) {
             let item = datos[i];
             item.estado = "Finalizada";
+            
+            // Detener temporizador si está activo
+            if (temporizadoresActivos[item.id]) {
+                clearInterval(temporizadoresActivos[item.id]);
+                delete temporizadoresActivos[item.id];
+            }
             
             // Liberar la mesa
             const mesaIndex = mesas.findIndex(m => m.numero == item.mesa);
@@ -707,7 +987,7 @@
             pintarDatosNew();
             actualizarEstadisticas();
             
-            alert(`La cuenta de ${item.cliente} (Mesa ${item.mesa}) ha sido pagada ✅`);
+            Swal.fire(`La cuenta de ${item.cliente} (Mesa ${item.mesa}) ha sido pagada ✅`, '', 'success');
         }
 
         // Actualizar estadísticas
@@ -720,7 +1000,7 @@
             const today = new Date().toISOString().split('T')[0];
             const reservasHoy = datos.filter(r => r.fecha === today);
             const reservasHoyContainer = document.getElementById("reservas-hoy");
-
+            
             if (reservasHoy.length === 0) {
                 reservasHoyContainer.innerHTML = '<div class="text-center p-3 border rounded">No hay reservas para hoy</div>';
             } else {
@@ -733,6 +1013,7 @@
                                 <span class="badge bg-primary">${r.estado}</span>
                             </div>
                             <div>${r.cliente} (${r.personas} personas)</div>
+                            <div>Hora: ${r.hora}</div>
                             <small class="text-muted">${r.ocasion}</small>
                         </div>
                     `;
@@ -746,10 +1027,9 @@
             pintarDatos();
             pintarDatosNew();
             actualizarEstadisticas();
+            recuperarTemporizadores();
             document.getElementById("btnGuardarModal").addEventListener("click", guardarDesdeModal);
         });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
-
