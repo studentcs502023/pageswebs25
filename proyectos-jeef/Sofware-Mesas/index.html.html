@@ -147,28 +147,6 @@
             color: #dc3545;
             font-weight: bold;
         }
-          .btn-cerrar-formulario {
-            position: absolute;
-            top: 550px;
-            right: 525px;
-            background: var(--accent-color);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-cerrar-formulario:hover {
-            transform: rotate(90deg);
-            background: #c0392b;
-        }
         
         @media (max-width: 768px) {
             .mesas-grid {
@@ -203,25 +181,8 @@
                         </button>
                     </div>
                     
-                    <!-- REEMPLAZA ESTO -->
-<div id="formulario" style="display: none;">
-    <div id="formulario" class="formulario-reserva">
-        <button class="btn-cerrar-formulario" onclick="ocultarFormularioNew()">×</button>
-        <!-- ... resto del formulario ... -->
-    </div>
-</div>
-
-<!-- POR ESTO -->
-<div id="formulario-container" style="display: none;">
-    <div class="formulario-reserva">
-        <button class="btn-cerrar-formulario" onclick="ocultarFormularioNew()">×</button>
-        <!-- ... resto del formulario ... -->
-    </div>
- </div>
-
+                    <div id="formulario" style="display: none;">
                         <h3 class="mb-4">Registro de Reserva</h3>
-                        
-
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -304,16 +265,13 @@
                             </div>
                         </div>
                         
-                        <div class="d-flex gap-2 mt-4">
-                            <button id="save" onclick="guardarNew()" class="btn btn-primary-custom text-white w-50">Guardar</button>
-                            
-                        </div>
-                   
+                       <div class="d-flex gap-2 mt-4">
+    <button id="save" onclick="guardarNew()" class="btn btn-primary-custom text-white w-50">Guardar</button>
+    <button type="button" onclick="ocultarFormularioNew()" class="btn btn-secondary w-50">Cancelar</button>
+</div>
                     </div>
                     
-                </div>
-            </div>
-            <div class="mt-5">
+                    <div class="mt-5">
                         <h3 class="mb-3">Reservas Existentes</h3>
                         <div class="table-responsive">
                             <table class="table table-striped table-hover table-custom">
@@ -337,6 +295,9 @@
                             </table>
                         </div>
                     </div>
+                </div>
+            </div>
+            
             <div class="col-lg-4">
                 <div class="form-container">
                     <h3>Estadísticas</h3>
@@ -426,6 +387,37 @@
         let temporizadoresActivos = {};
 
         // ==================== FUNCIONES DEL TEMPORIZADOR ====================
+
+       // Función para validar horarios de reserva
+function validarHorarioReserva(mesa, fecha, hora, duracion, reservaId = null) {
+    // Convertir duración de minutos a milisegundos
+    const duracionMs = duracion * 60000;
+    
+    return !datos.some(reserva => {
+        // 1. Solo verificar reservas para la misma mesa (excepto la que se está editando)
+        if (reserva.mesa != mesa) return false;
+        if (reservaId && reserva.id == reservaId) return false;
+        
+        // 2. Solo verificar reservas para la misma fecha
+        if (reserva.fecha != fecha) return false;
+        
+        // 3. Solo verificar reservas que no estén canceladas o finalizadas
+        if (reserva.estado === "Cancelada" || reserva.estado === "Finalizada") return false;
+        
+        // 4. Calcular rangos de tiempo
+        const nuevaReservaInicio = new Date(`${fecha}T${hora}`);
+        const nuevaReservaFin = new Date(nuevaReservaInicio.getTime() + duracionMs);
+        
+        const reservaExistenteInicio = new Date(`${reserva.fecha}T${reserva.hora}`);
+        const reservaExistenteFin = new Date(reservaExistenteInicio.getTime() + (reserva.duracion * 60000));
+        
+        // 5. Verificar si hay solapamiento
+        const hayConflicto = nuevaReservaInicio < reservaExistenteFin && 
+                            nuevaReservaFin > reservaExistenteInicio;
+        
+        return hayConflicto;
+    });
+}
         
         // Iniciar temporizador para una reserva
         function iniciarTemporizador(reservaId, startTime, duracionMinutos) {
@@ -709,21 +701,12 @@
             document.getElementById("hora-reserva").value = `${horas}:${minutos}`;
         }
 
-function ocultarFormularioNew() {
-    const formularioContainer = document.getElementById("formulario-container");
-    const btnReserva = document.getElementById("btnReserva");
-    
-    // Ocultar el contenedor del formulario
-    formularioContainer.style.display = "none";
-
-    
-    // Mostrar el botón de reserva
-    btnReserva.style.display = "block";
-    
-    // Limpiar el formulario
-    limpiarFormularioNew();
-}
-
+        // Ocultar formulario de reserva
+        function ocultarFormularioNew() {
+            document.getElementById("formulario").style.display = "none";
+            document.getElementById("btnReserva").style.display = "block";
+            limpiarFormularioNew();
+        }
 
         // Limpiar formulario de reserva
         function limpiarFormularioNew() {
@@ -747,97 +730,95 @@ function ocultarFormularioNew() {
 
         // Guardar reserva
         function guardarNew() {
-            // Validaciones
-            let isValid = true;
-            
-            if (!document.getElementById("nombreCliente").value) {
-                document.getElementById("nombreCliente").classList.add('input-error');
-                document.getElementById("errorNombre").style.display = 'block';
-                isValid = false;
-            }
-            
-            if (!document.getElementById("NumReservas").value || document.getElementById("NumReservas").value < 1) {
-                document.getElementById("NumReservas").classList.add('input-error');
-                document.getElementById("errorNombre1").style.display = 'block';
-                isValid = false;
-            }
-            
-            if (!document.getElementById("Datereserva").value) {
-                document.getElementById("Datereserva").classList.add('input-error');
-                document.getElementById("errorNombre2").style.display = 'block';
-                isValid = false;
-            }
-            
-            // Validar hora de reserva (entre 8:00 y 20:00)
-            const horaReserva = document.getElementById("hora-reserva").value;
-            if (!horaReserva) {
-                document.getElementById("hora-reserva").classList.add('input-error');
-                document.getElementById("errorHora").style.display = 'block';
-                isValid = false;
-            } else if (horaReserva < "08:00" || horaReserva > "20:00") {
-                document.getElementById("hora-reserva").classList.add('input-error');
-                document.getElementById("errorHora").textContent = "⚠️ El horario debe ser entre 8:00 AM y 8:00 PM";
-                document.getElementById("errorHora").style.display = 'block';
-                isValid = false;
-            }
-            
-            if (!isValid) return;
-            
-            // Verificar si la mesa seleccionada sigue disponible
-            const mesaSeleccionada = document.getElementById("select-mesa").value;
-            const mesaIndex = mesas.findIndex(m => m.numero == mesaSeleccionada);
-            
-
-
-            
-            if (mesaIndex === -1 || mesas[mesaIndex].estado !== "Libre") {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Mesa no disponible',
-                    text: 'La mesa seleccionada ya no está disponible. Por favor, elija otra mesa.'
-                });
-                return;
-            }
-            
-            // Crear objeto de reserva
-            let reg = {
-                id: document.getElementById("idreserva").value,
-                mesa: mesaSeleccionada,
-                cliente: document.getElementById("nombreCliente").value,
-                personas: document.getElementById("NumReservas").value,
-                fecha: document.getElementById("Datereserva").value,
-                hora: document.getElementById("hora-reserva").value,
-                duracion: document.getElementById("duracion-reserva").value,
-                ocasion: document.getElementById("ocasiones-especiales").value,
-                notas: document.getElementById("Notas").value,
-                estado: document.getElementById("estado").value,
-                // Guardar timestamp de inicio si la reserva está confirmada u ocupada
-                startTime: (document.getElementById("estado").value === "Confirmada" || 
-                           document.getElementById("estado").value === "Ocupada") ? Date.now() : null
-            };
-            
-            datos.push(reg);
-            localStorage.setItem("reservas", JSON.stringify(datos));
-            
-
-            if (reg.estado === "Confirmada" || reg.estado === "Ocupada" || reg.estado === "Pendiente") {
-    mesas[mesaIndex].estado = "Ocupada";
-    localStorage.setItem("mesas", JSON.stringify(mesas));
-
-    // Iniciar temporizador solo para reservas Confirmadas u Ocupadas
-    if (reg.estado === "Confirmada" || reg.estado === "Ocupada") {
-        iniciarTemporizador(reg.id, reg.startTime, parseInt(reg.duracion));
+    // Validaciones
+    let isValid = true;
+    
+    if (!document.getElementById("nombreCliente").value) {
+        document.getElementById("nombreCliente").classList.add('input-error');
+        document.getElementById("errorNombre").style.display = 'block';
+        isValid = false;
     }
-}
-            // Actualizar estado de la mesa si está reservada
+    
+    if (!document.getElementById("NumReservas").value || document.getElementById("NumReservas").value < 1) {
+        document.getElementById("NumReservas").classList.add('input-error');
+        document.getElementById("errorNombre1").style.display = 'block';
+        isValid = false;
+    }
+    
+    if (!document.getElementById("Datereserva").value) {
+        document.getElementById("Datereserva").classList.add('input-error');
+        document.getElementById("errorNombre2").style.display = 'block';
+        isValid = false;
+    }
+    
+    if (!document.getElementById("hora-reserva").value) {
+        document.getElementById("hora-reserva").classList.add('input-error');
+        document.getElementById("errorHora").style.display = 'block';
+        isValid = false;
+    }
+    
+    if (!isValid) return;
+
+    // ✅ NUEVA VALIDACIÓN: Verificar conflicto de horarios
+    const mesa = document.getElementById("select-mesa").value;
+    const fecha = document.getElementById("Datereserva").value;
+    const hora = document.getElementById("hora-reserva").value;
+    const duracion = document.getElementById("duracion-reserva").value;
+    
+    if (!validarHorarioReserva(mesa, fecha, hora, parseInt(duracion))) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Horario no disponible',
+            text: 'La mesa ya está reservada en ese horario. Por favor, elija otro horario o mesa.'
+        });
+        return;
+    }
+
+    // Crear objeto de reserva
+    let reg = {
+        id: document.getElementById("idreserva").value,
+        mesa: mesa,
+        cliente: document.getElementById("nombreCliente").value,
+        personas: document.getElementById("NumReservas").value,
+        fecha: fecha,
+        hora: hora,
+        duracion: duracion,
+        ocasion: document.getElementById("ocasiones-especiales").value,
+        notas: document.getElementById("Notas").value,
+        estado: document.getElementById("estado").value,
+        // Guardar timestamp de inicio si la reserva está confirmada u ocupada
+        startTime: (document.getElementById("estado").value === "Confirmada" || 
+                   document.getElementById("estado").value === "Ocupada") ? Date.now() : null
+    };
+    
+    datos.push(reg);
+    localStorage.setItem("reservas", JSON.stringify(datos));
+    
+    // Actualizar estado de la mesa si está reservada
+    if (reg.estado === "Confirmada" || reg.estado === "Ocupada" || reg.estado === "Pendiente") {
+        const mesaIndex = mesas.findIndex(m => m.numero == reg.mesa);
+        if (mesaIndex !== -1) {
+            mesas[mesaIndex].estado = "Ocupada";
+            localStorage.setItem("mesas", JSON.stringify(mesas));
             
-            pintarDatos();
-            pintarDatosNew();
-            actualizarEstadisticas();
-            ocultarFormularioNew();
-            
-            Swal.fire('Reserva guardada con éxito!', '', 'success');
+            // Iniciar temporizador para esta reserva (solo Confirmada u Ocupada)
+            if (reg.estado === "Confirmada" || reg.estado === "Ocupada") {
+                iniciarTemporizador(reg.id, reg.startTime, parseInt(reg.duracion));
+            }
         }
+    }
+    
+    pintarDatos();
+    pintarDatosNew();
+    actualizarEstadisticas();
+    ocultarFormularioNew();
+    
+    Swal.fire({
+        title: "Reserva guardada correctamente",
+        icon: "success",
+        draggable: true
+    });
+}
 
         // Pintar reservas en la tabla
         function pintarDatosNew() {
@@ -941,6 +922,7 @@ function ocultarFormularioNew() {
                     `;
 
                     filtroConfirmadas.appendChild(div2);
+                
                 }
             });
         }
@@ -948,7 +930,7 @@ function ocultarFormularioNew() {
         // Editar reserva
         function editarReservaNew(i) {
             let item = datos[i];
-
+            
             document.getElementById("idreserva").value = item.id;
             document.getElementById("select-mesa").value = item.mesa;
             document.getElementById("nombreCliente").value = item.cliente;
@@ -994,15 +976,11 @@ function ocultarFormularioNew() {
     const mesaIndex = mesas.findIndex(m => m.numero == datos[i].mesa);
     if (mesaIndex !== -1) {
         mesas[mesaIndex].estado = "Libre";
-
-if (datos[i].estado === "Finalizada") {
-  mesas[mesaIndex].estado = "Libre";
-  btnEditar.disabled = true; // desactiva el botón
-}
         localStorage.setItem("mesas", JSON.stringify(mesas));
         pintarDatos();
     }
-}
+
+   
                     
                     datos.splice(i, 1);
                     localStorage.setItem("reservas", JSON.stringify(datos));
@@ -1014,7 +992,9 @@ if (datos[i].estado === "Finalizada") {
                         'success'
                     );
                 }
-            });
+            }
+    
+    });
         }
 
         // Pagar cuenta
@@ -1086,10 +1066,3 @@ if (datos[i].estado === "Finalizada") {
     </script>
 </body>
 </html>
-
-    
-
-
-
-
-
