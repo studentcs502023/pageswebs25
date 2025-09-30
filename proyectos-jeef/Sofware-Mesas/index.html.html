@@ -1212,6 +1212,7 @@ function guardarNew() {
     actualizarEstadisticas();
     ocultarFormularioNew();
     limpiarFormularioNew();
+    validarHorarioReserva(mesa, fecha, hora, duracion, reservaId = null) 
 
     Swal.fire({
         title: "Reserva guardada correctamente",
@@ -1582,4 +1583,5 @@ function editarReservaNew(i) {
     </script>
 </body>
 </html>
+
 
