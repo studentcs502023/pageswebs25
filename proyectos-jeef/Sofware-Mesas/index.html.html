@@ -459,36 +459,46 @@ function recuperarTemporizadores() {
 // }
 
 function validarHorarioReserva(mesa, fecha, hora, duracion, reservaId = null) {
-    // Convertir duración de minutos a milisegundos
+    // ✅ Duración en milisegundos
     const duracionMs = duracion * 60000;
-    
+
+    // 🔹 Calcular inicio y fin de la nueva reserva
+    const nuevaReservaInicio = new Date(`${fecha}T${hora}`);
+    const nuevaReservaFin = new Date(nuevaReservaInicio.getTime() + duracionMs);
+
+    // 🔹 Definir rango permitido (08:00 → 20:00)
+    const apertura = new Date(`${fecha}T08:00`);
+    const cierre = new Date(`${fecha}T20:00`);
+
+    // ❌ Si está fuera del horario permitido → inválida
+    if (nuevaReservaInicio < apertura || nuevaReservaFin > cierre) {
+        return false;
+    }
+
+    // 🔹 Validar contra reservas existentes
     return !datos.some(reserva => {
-        // 1. Solo verificar reservas para la misma mesa (excepto la que se está editando)
+        // 1. Misma mesa (excluyendo la que se está editando)
         if (reserva.mesa != mesa) return false;
         if (reservaId && reserva.id == reservaId) return false;
-if (reservaId && reserva.id == reservaId) return false;
 
-        
-        // 2. Solo verificar reservas para la misma fecha
+        // 2. Misma fecha
         if (reserva.fecha != fecha) return false;
-        
-        // 3. Solo verificar reservas que no estén canceladas o finalizadas
+
+        // 3. Saltar canceladas/finalizadas
         if (reserva.estado === "Cancelada" || reserva.estado === "Finalizada") return false;
-        
-        // 4. Calcular rangos de tiempo
-        const nuevaReservaInicio = new Date(`${fecha}T${hora}`);
-        const nuevaReservaFin = new Date(nuevaReservaInicio.getTime() + duracionMs);
-        
+
+        // 4. Calcular rango de reserva existente
         const reservaExistenteInicio = new Date(`${reserva.fecha}T${reserva.hora}`);
         const reservaExistenteFin = new Date(reservaExistenteInicio.getTime() + (reserva.duracion * 60000));
-        
-        // 5. Verificar si hay solapamiento (incluyendo bordes exactos)
-        const hayConflicto = nuevaReservaInicio <= reservaExistenteFin && 
-                             nuevaReservaFin >= reservaExistenteInicio;
-        
+
+        // 5. Verificar solapamiento
+        const hayConflicto = nuevaReservaInicio < reservaExistenteFin &&
+                             nuevaReservaFin > reservaExistenteInicio;
+
         return hayConflicto;
     });
 }
+
 
         
         // Iniciar temporizador para una reserva
@@ -1583,5 +1593,6 @@ function editarReservaNew(i) {
     </script>
 </body>
 </html>
+
 
 
