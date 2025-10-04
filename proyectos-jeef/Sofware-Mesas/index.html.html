@@ -147,6 +147,20 @@
             color: #dc3545;
             font-weight: bold;
         }
+        #filtroFecha{
+            width: 20vw;
+       
+        }
+
+        .ocasion-img {
+  height: 80px;
+  width: 80px;
+  display: inline-block;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+
         
         @media (max-width: 768px) {
             .mesas-grid {
@@ -231,6 +245,22 @@
                                 </select>
                             </div>
                             
+
+                              <!-- const imagenesPorOcasion = {
+        "cumpleaños": "https://i.imgur.com/tC2d8rB.png",
+        "Aniversario": "https://i.imgur.com/IkqU7J7.png",
+        "Reunion de Negocios": "https://i.imgur.com/6vE6pcv.png",
+        "Boda": "https://i.imgur.com/3ny2rTh.png",
+        "Despedida": "https://i.imgur.com/9W3mEoW.png",
+        "Graduacion": "https://i.imgur.com/MZAkSUO.png",
+        "Compromiso": "https://i.imgur.com/EjZqvQ7.png",
+        "Dia de la Madre": "https://i.imgur.com/r4C6eo9.png",
+        "Dia del Padre": "https://i.imgur.com/t0O6dVZ.png",
+        "San Valentin": "https://i.imgur.com/EGZ1hdV.png",
+        "Navidad": "https://i.imgur.com/Ia0JODJ.png",
+        "Año Nuevo": "https://i.imgur.com/Nxj3hRP.png"
+    }; -->
+
                             <div class="col-md-6 mb-3">
                                 <label for="ocasiones-especiales" class="form-label">Ocasión especial</label>
                                 <select id="ocasiones-especiales" class="form-select">
@@ -373,8 +403,116 @@
         </div>
     </div>
 
+   
+<div class="row mt-4">
+  <div class="col-md-4">
+    <label for="filtroFecha" class="form-label">Filtrar por fecha</label>
+    <input type="date" id="filtroFecha" class="form-control" onchange="filtrarReservasPorFecha()">
+  </div>
+</div>
+
+<!-- Tabla de resultados filtrados -->
+<div class="table-responsive mt-3">
+  <table class="table table-striped table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>Mesa</th>
+        <th>Cliente</th>
+        <th>Personas</th>
+        <th>Fecha</th>
+        <th>Duración</th>
+        <th>Ocasión</th>
+        <th>imagen</th>
+        <th>Notas</th>
+        <th>Estado</th>
+        <th>Opciones</th>
+      </tr>
+    </thead>
+    <tbody id="contenedorReservasFiltradas">
+     
+    </tbody>
+  </table>
+</div>
+
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+
+        function getImagenPorOcasion(ocasion) {
+    const imagenes = {
+        "cumpleaños": "https://png.pngtree.com/png-vector/20240816/ourmid/pngtree-colorful-balloon-happy-birthday-text-with-festive-decorations-png-image_13507141.png",
+        "Aniversario": "https://i.imgur.com/IkqU7J7.png",
+        "Reunion de Negocios": "https://i.imgur.com/6vE6pcv.png",
+        "Boda": "https://i.imgur.com/3ny2rTh.png",
+        "Despedida": "https://i.imgur.com/9W3mEoW.png",
+        "Graduacion": "https://i.imgur.com/MZAkSUO.png",
+        "Compromiso": "https://i.imgur.com/EjZqvQ7.png",
+        "Dia de la Madre": "https://i.imgur.com/r4C6eo9.png",
+        "Dia del Padre": "https://i.imgur.com/t0O6dVZ.png",
+        "San Valentin": "https://i.imgur.com/EGZ1hdV.png",
+        "Navidad": "https://i.imgur.com/Ia0JODJ.png",
+        "Año Nuevo": "https://i.imgur.com/Nxj3hRP.png"
+    };
+
+    const src = imagenes[ocasion];
+    return src ? `<img src="${src}" alt="${ocasion}" style="height: 20px; margin-right: 6px;">` : "";
+}
+
+
+function filtrarReservasPorFecha() {
+  const fechaSeleccionada = document.getElementById("filtroFecha").value;
+
+  if (!fechaSeleccionada) {
+    document.getElementById("contenedorReservasFiltradas").innerHTML = "";
+    return;
+  }
+
+  const resultados = datos.filter(r =>
+    r.fecha === fechaSeleccionada &&
+    ["Ocupada", "Confirmada", "Finalizada", "Pendiente"].includes(r.estado)
+  );
+
+  pintarResultadosFiltrados(resultados);
+}
+
+function pintarResultadosFiltrados(reservasFiltradas) {
+  const contenedor = document.getElementById("contenedorReservasFiltradas");
+  contenedor.innerHTML = "";
+
+  reservasFiltradas.forEach((item, i) => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${item.mesa}</td>
+      <td>${item.cliente}</td>
+      <td>${item.personas}</td>
+      <td>${item.fecha}</td>
+      <td>${item.duracion ? (item.duracion / 60) + ' h' : '-'}</td>
+      <td>${item.ocasion}</td>
+      <td>${item.notas}</td>
+      <td><span class="badge bg-${item.estado === "Confirmada" ? "success" : item.estado === "Ocupada" ? "primary" : "secondary"}">${item.estado}</span></td>
+      <td>
+        <button class="btn btn-sm btn-warning" onclick="editarReservaNew(${buscarIndicePorId(item.id)})">✏️ Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="eliminarReservaNew(${buscarIndicePorId(item.id)})">🗑️ Eliminar</button>
+      </td>
+    `;
+
+    contenedor.appendChild(tr);
+  });
+}
+
+// Para obtener el índice real del item en 'datos' al usar id
+function buscarIndicePorId(id) {
+  return datos.findIndex(r => r.id == id);
+}
+window.addEventListener("DOMContentLoaded", () => {
+  const today = new Date().toISOString().split("T")[0];
+  document.getElementById("filtroFecha").value = today;
+  filtrarReservasPorFecha();
+});
+
+
 
 
         // Inicializar localStorage
@@ -485,7 +623,8 @@ function validarHorarioReserva(mesa, fecha, hora, duracion, reservaId = null) {
         if (reserva.fecha != fecha) return false;
 
         // 3. Saltar canceladas/finalizadas
-        if (reserva.estado === "Cancelada" || reserva.estado === "Finalizada") return false;
+        
+        
 
         // 4. Calcular rango de reserva existente
         const reservaExistenteInicio = new Date(`${reserva.fecha}T${reserva.hora}`);
@@ -698,7 +837,7 @@ function iniciarTemporizador(reservaId, startTime, duracionMinutos) {
         const guardarDesdeModal = () => {
             const numero = document.getElementById("modal-numero").value;
             const cantidad = document.getElementById("modal-cantidad").value;
-            const ubicacion = document.getElementById("modal-ubicacion").value;
+            const ubicacion = document.getElementById("modal-ubicacion").value.trim();
             const estado = document.getElementById("modal-estado").value;
             let isValid = true;
             
@@ -788,25 +927,41 @@ function iniciarTemporizador(reservaId, startTime, duracionMinutos) {
         };
 
         // Reservar una mesa
+        // function reservarMesa(i) {
+        //     // Verificar si la mesa ya está ocupada por una reserva confirmada
+        //     if (mesas[i].estado === "Ocupada") {
+        //         Swal.fire({
+        //             icon: 'error',
+        //             title: 'Mesa no disponible',
+        //             text: 'Esta mesa ya está ocupada por una reserva confirmada'
+        //         });
+        //         return;
+        //     }
+            
+        //     mesas[i].estado = "Ocupada";
+        //     localStorage.setItem("mesas", JSON.stringify(mesas));
+        //     pintarDatos();
+        //     actualizarEstadisticas();
+            
+        //     document.getElementById("select-mesa").value = mesas[i].numero;
+        //     mostrarFormularioNew();
+        // }
+
         function reservarMesa(i) {
-            // Verificar si la mesa ya está ocupada por una reserva confirmada
-            if (mesas[i].estado === "Ocupada") {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Mesa no disponible',
-                    text: 'Esta mesa ya está ocupada por una reserva confirmada'
-                });
-                return;
-            }
-            
-            mesas[i].estado = "Ocupada";
-            localStorage.setItem("mesas", JSON.stringify(mesas));
-            pintarDatos();
-            actualizarEstadisticas();
-            
-            document.getElementById("select-mesa").value = mesas[i].numero;
-            mostrarFormularioNew();
-        }
+    // Verificar si la mesa ya está ocupada
+   
+
+    // Volver a pintar las mesas actualizadas
+    pintarDatos();
+    actualizarEstadisticas();
+
+    // ✅ Mostrar el formulario
+    mostrarFormularioNew();
+
+    // ✅ Preseleccionar la mesa en el formulario
+    document.getElementById("select-mesa").value = mesas[i].numero;
+}
+
 
         // Editar una mesa
         window.editarMesa = (i) => {
@@ -855,24 +1010,46 @@ function iniciarTemporizador(reservaId, startTime, duracionMinutos) {
         };
 
         // Mostrar formulario de reserva
-        function mostrarFormularioNew() {
-            document.getElementById("formulario").style.display = "block";
-    document.getElementById("formulario").classList.remove("d-none");
+    //     function mostrarFormularioNew() {
+    //         document.getElementById("formulario").style.display = "block";
+    // document.getElementById("formulario").classList.remove("d-none");
             
-            // Generar ID único para la reserva
-            document.getElementById("idreserva").value = Math.floor(1000 + Math.random() * 9000);
+    //         // Generar ID único para la reserva
+    //         document.getElementById("idreserva").value = Math.floor(1000 + Math.random() * 9000);
             
-            // Establecer fecha mínima como hoy
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById("Datereserva").setAttribute('min', today);
-            document.getElementById("Datereserva").value = today;
+    //         // Establecer fecha mínima como hoy
+    //         const today = new Date().toISOString().split('T')[0];
+    //         document.getElementById("Datereserva").setAttribute('min', today);
+    //         document.getElementById("Datereserva").value = today;
             
-            // Establecer hora actual por defecto
-            const ahora = new Date();
-            const horas = ahora.getHours().toString().padStart(2, '0');
-            const minutos = ahora.getMinutes().toString().padStart(2, '0');
-            document.getElementById("hora-reserva").value = `${horas}:${minutos}`;
-        }
+    //         // Establecer hora actual por defecto
+    //         const ahora = new Date();
+    //         const horas = ahora.getHours().toString().padStart(2, '0');
+    //         const minutos = ahora.getMinutes().toString().padStart(2, '0');
+    //         document.getElementById("hora-reserva").value = `${horas}:${minutos}`;
+    //     }
+function mostrarFormularioNew() {
+    const formulario = document.getElementById("formulario");
+
+    // Mostrar el formulario
+    formulario.style.display = "block";
+    formulario.classList.remove("d-none");
+
+    // Generar ID único para la reserva
+    document.getElementById("idreserva").value = Math.floor(1000 + Math.random() * 9000);
+
+    // Establecer fecha mínima como hoy
+    const today = new Date().toISOString().split('T')[0];
+    const fechaInput = document.getElementById("Datereserva");
+    fechaInput.setAttribute('min', today);
+    fechaInput.value = today;
+
+    // Establecer hora actual por defecto (formato HH:MM)
+    const ahora = new Date();
+    const horas = ahora.getHours().toString().padStart(2, '0');
+    const minutos = ahora.getMinutes().toString().padStart(2, '0');
+    document.getElementById("hora-reserva").value = `${horas}:${minutos}`;
+}
 
 
 function ocultarFormularioNew() {
@@ -1125,11 +1302,12 @@ function iniciarTemporizador(reservaId, startTime, duracionMinutos) {
 //     }, 1000); // cada segundo
 // }
 
+
 function guardarNew() {
     // ✅ Validaciones
     let isValid = true;
 
-    if (!document.getElementById("nombreCliente").value) {
+    if (!document.getElementById("nombreCliente").value.trim()) {
         document.getElementById("nombreCliente").classList.add('input-error');
         document.getElementById("errorNombre").style.display = 'block';
         isValid = false;
@@ -1155,22 +1333,28 @@ function guardarNew() {
 
     if (!isValid) return;
 
-    // ✅ Validación de conflictos de horarios
+    // ✅ Validación de conflictos de horarios solo si estamos creando una nueva reserva
+    if (editIndexReserva === null) {  // Solo validar cuando es nueva reserva
+        const mesa = document.getElementById("select-mesa").value;
+        const fecha = document.getElementById("Datereserva").value;
+        const hora = document.getElementById("hora-reserva").value;
+        const duracion = parseInt(document.getElementById("duracion-reserva").value);
+
+        if (!validarHorarioReserva(mesa, fecha, hora, duracion)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Horario no disponible',
+                text: 'La mesa ya está reservada en ese horario. Por favor, elija otro horario o mesa.'
+            });
+            return;
+        }
+    }
+
+    // 📌 Calcular startTime (hora programada en ms)
     const mesa = document.getElementById("select-mesa").value;
     const fecha = document.getElementById("Datereserva").value;
     const hora = document.getElementById("hora-reserva").value;
     const duracion = parseInt(document.getElementById("duracion-reserva").value);
-
-    if (!validarHorarioReserva(mesa, fecha, hora, duracion)) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Horario no disponible',
-            text: 'La mesa ya está reservada en ese horario. Por favor, elija otro horario o mesa.'
-        });
-        return;
-    }
-
-    // 📌 Calcular startTime (hora programada en ms)
     const startTimestamp = new Date(`${fecha}T${hora}`).getTime();
     const estadoSeleccionado = document.getElementById("estado").value;
 
@@ -1189,6 +1373,7 @@ function guardarNew() {
         startTime: (["Confirmada", "Ocupada"].includes(estadoSeleccionado)) ? Date.now() : startTimestamp
     };
 
+    
     // Guardar (nueva o edición)
     if (editIndexReserva === null) {
         datos.push(reserva); // 🚀 Nueva reserva
@@ -1222,7 +1407,6 @@ function guardarNew() {
     actualizarEstadisticas();
     ocultarFormularioNew();
     limpiarFormularioNew();
-    validarHorarioReserva(mesa, fecha, hora, duracion, reservaId = null) 
 
     Swal.fire({
         title: "Reserva guardada correctamente",
@@ -1363,7 +1547,11 @@ function guardarNew() {
                     <td>${item.fecha}</td>
                     <td>${item.hora || '-'}</td>
                     <td>${item.duracion ? (item.duracion / 6) + ' h' : '-'}</td>
-                    <td>${item.ocasion}</td>
+                    <td>${item.ocasion} 
+                        <br>
+                        ${getImagenPorOcasion(item.ocasion)}
+                        </td>
+                  
                     <td>${item.notas}</td>
                     <td>
                         <span class="badge ${item.estado === 'Confirmada' ? 'bg-success' : 
@@ -1593,6 +1781,7 @@ function editarReservaNew(i) {
     </script>
 </body>
 </html>
+
 
 
 
