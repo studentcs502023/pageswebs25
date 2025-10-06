@@ -186,121 +186,129 @@
                 </div>
            
                 <div id="bodyData" class="mesas-grid"></div>
-                
-                <div class="form-container">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2>Gestión de Reservas</h2>
-                        <button id="btnReserva" class="btn btn-success" onclick="mostrarFormularioNew()">
+                        <button id="btnReserva" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalReservas">
                             ➕ Hacer Reserva
                         </button>
                     </div>
-                    
-                    <div id="formulario" style="display: none;" >
-                        <h3 class="mb-4">Registro de Reserva</h3>
-                        
-                        <div class="row"  >
-                            <div class="col-md-6 mb-3">
-                                <label for="idreserva" class="form-label">ID único de la reserva</label>
-                                <input type="number" id="idreserva" class="form-control" required>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="select-mesa" class="form-label">Seleccione una mesa</label>
-                                <select id="select-mesa" class="form-select" required>
-                                    <option value="">Seleccione una mesa</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="nombreCliente" class="form-label">Nombre del cliente</label>
-                                <input type="text" id="nombreCliente" class="form-control" required>
-                                <div id="errorNombre" class="error-message">⚠️ El nombre es obligatorio</div>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="NumReservas" class="form-label">Número de personas</label>
-                                <input type="number" id="NumReservas" class="form-control" required min="1">
-                                <div id="errorNombre1" class="error-message">⚠️ El número de personas es obligatorio</div>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="Datereserva" class="form-label">Fecha de reserva</label>
-                                <input type="date" id="Datereserva" class="form-control">
-                                <div id="errorNombre2" class="error-message">⚠️ La fecha es obligatoria</div>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="hora-reserva" class="form-label">Hora de reserva</label>
-                                <input type="time" id="hora-reserva" class="form-control" min="08:00" max="20:00">
-                                <div id="errorHora" class="error-message">⚠️ La hora es obligatoria (entre 8:00 y 20:00)</div>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="duracion-reserva" class="form-label">Duración estimada</label>
-                                <select id="duracion-reserva" class="form-select">
-                                    <option value="60">1 hora</option>
-                                    <option value="120" selected>2 horas</option>
-                                    <option value="180">3 horas</option>
-                                    <option value="240">4 horas</option>
-                                </select>
-                            </div>
-                            
-
-                              <!-- const imagenesPorOcasion = {
-        "cumpleaños": "https://i.imgur.com/tC2d8rB.png",
-        "Aniversario": "https://i.imgur.com/IkqU7J7.png",
-        "Reunion de Negocios": "https://i.imgur.com/6vE6pcv.png",
-        "Boda": "https://i.imgur.com/3ny2rTh.png",
-        "Despedida": "https://i.imgur.com/9W3mEoW.png",
-        "Graduacion": "https://i.imgur.com/MZAkSUO.png",
-        "Compromiso": "https://i.imgur.com/EjZqvQ7.png",
-        "Dia de la Madre": "https://i.imgur.com/r4C6eo9.png",
-        "Dia del Padre": "https://i.imgur.com/t0O6dVZ.png",
-        "San Valentin": "https://i.imgur.com/EGZ1hdV.png",
-        "Navidad": "https://i.imgur.com/Ia0JODJ.png",
-        "Año Nuevo": "https://i.imgur.com/Nxj3hRP.png"
-    }; -->
-
-                            <div class="col-md-6 mb-3">
-                                <label for="ocasiones-especiales" class="form-label">Ocasión especial</label>
-                                <select id="ocasiones-especiales" class="form-select">
-                                    <option value="cumpleaños">Cumpleaños</option>
-                                    <option value="Aniversario">Aniversario</option>
-                                    <option value="Reunion de Negocios">Reunión de Negocios</option>
-                                    <option value="Boda">Boda</option>
-                                    <option value="Despedida">Despedida</option>
-                                    <option value="Graduacion">Graduación</option>
-                                    <option value="Compromiso">Compromiso</option>
-                                    <option value="Dia de la Madre">Día de la Madre</option>
-                                    <option value="Dia del Padre">Día del Padre</option>
-                                    <option value="San Valentin">San Valentín</option>
-                                    <option value="Navidad">Navidad</option>
-                                    <option value="Año Nuevo">Año Nuevo</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-12 mb-3">
-                                <label for="Notas" class="form-label">Notas para la atención</label>
-                                <textarea id="Notas" class="form-control" rows="2"></textarea>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="estado" class="form-label">Estado de la reserva</label>
-                                <select id="estado" class="form-select">
-                                    <option value="Pendiente">Pendiente</option>
-                                    <option value="Confirmada">Confirmada</option>
-                                    <option value="Cancelada">Cancelada</option>
-                                    <option value="Finalizada">Finalizada</option>
-                                </select>
-                            </div>
+                   <div class="modal fade" id="modalReservas" tabindex="-1" aria-labelledby="modalReservasLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalReservasLabel">Registro de Reserva</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="idreserva" class="form-label">ID único de la reserva</label>
+                            <input type="number" id="idreserva" class="form-control" required>
                         </div>
                         
-                       <div class="d-flex gap-2 mt-4">
-    <button id="save" onclick="guardarNew()" class="btn btn-primary-custom text-white w-50">Guardar</button>
-    <button type="button" onclick="ocultarFormularioNew()" class="btn btn-secondary w-50" class="d-none" >Cancelar</button>
-</div>
+                        <div class="col-md-6 mb-3">
+                            <label for="select-mesa" class="form-label">Seleccione una mesa</label>
+                            <select id="select-mesa" class="form-select" required>
+                                <option value="">Seleccione una mesa</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="nombreCliente" class="form-label">Nombre del cliente</label>
+                            <input type="text" id="nombreCliente" class="form-control" required>
+                            <div id="errorNombre" class="error-message">⚠️ El nombre es obligatorio</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="NumReservas" class="form-label">Número de personas</label>
+                            <input type="number" id="NumReservas" class="form-control" required min="1">
+                            <div id="errorNombre1" class="error-message">⚠️ El número de personas es obligatorio</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="Datereserva" class="form-label">Fecha de reserva</label>
+                            <input type="date" id="Datereserva" class="form-control">
+                            <div id="errorNombre2" class="error-message">⚠️ La fecha es obligatoria</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="hora-reserva" class="form-label">Hora de reserva</label>
+                            <input type="time" id="hora-reserva" class="form-control" min="08:00" max="20:00">
+                            <div id="errorHora" class="error-message">⚠️ La hora es obligatoria (entre 8:00 y 20:00)</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="duracion-reserva" class="form-label">Duración estimada</label>
+                            <select id="duracion-reserva" class="form-select">
+                                <option value="60">1 hora</option>
+                                <option value="120" selected>2 horas</option>
+                                <option value="180">3 horas</option>
+                                <option value="240">4 horas</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="ocasiones-especiales" class="form-label">Ocasión especial</label>
+                            <select id="ocasiones-especiales" class="form-select">
+                                <option value="cumpleaños">Cumpleaños</option>
+                                <option value="Aniversario">Aniversario</option>
+                                <option value="Reunion de Negocios">Reunión de Negocios</option>
+                                <option value="Boda">Boda</option>
+                                <option value="Despedida">Despedida</option>
+                                <option value="Graduacion">Graduación</option>
+                                <option value="Compromiso">Compromiso</option>
+                                <option value="Dia de la Madre">Día de la Madre</option>
+                                <option value="Dia del Padre">Día del Padre</option>
+                                <option value="San Valentin">San Valentín</option>
+                                <option value="Navidad">Navidad</option>
+                                <option value="Año Nuevo">Año Nuevo</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-12 mb-3">
+                            <label for="Notas" class="form-label">Notas para la atención</label>
+                            <textarea id="Notas" class="form-control" rows="2"></textarea>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="estado" class="form-label">Estado de la reserva</label>
+                            <select id="estado" class="form-select">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Confirmada">Confirmada</option>
+                                <option value="Cancelada">Cancelada</option>
+                                <option value="Finalizada">Finalizada</option>
+                            </select>
+                        </div>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button id="save" onclick="guardarNew()" class="btn btn-primary-custom text-white">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
                     
+
+<div class="row mt-4">
+  <div class="col-md-4">
+    <label for="filtroFecha" class="form-label">Filtrar por fecha</label>
+    <input type="date" id="filtroFecha" class="form-control" onchange="pintarDatosNew()">
+  </div>
+</div>
+
+  <div class="col-md-4">
+    <label for="filtroEstado" class="form-label">Filtrar por estado</label>
+    <select id="filtroEstado" class="form-control" onchange="pintarDatosNew()">
+      <option value="">-- Todos --</option>
+      <option value="Confirmada">Confirmada</option>
+      <option value="Pendiente">Pendiente</option>
+      <option value="Ocupada">Ocupada</option>
+      <option value="Cancelada">Cancelada</option>
+      <option value="Finalizada">Finalizada</option>
+    </select>
+  </div>
+</div>
                     <div class="mt-5">
                         <h3 class="mb-3">Reservas Existentes</h3>
                         <div class="table-responsive">
@@ -404,15 +412,15 @@
     </div>
 
    
-<div class="row mt-4">
+<!-- <div class="row mt-4">
   <div class="col-md-4">
     <label for="filtroFecha" class="form-label">Filtrar por fecha</label>
     <input type="date" id="filtroFecha" class="form-control" onchange="filtrarReservasPorFecha()">
   </div>
 </div>
 
-<!-- Tabla de resultados filtrados -->
-<div class="table-responsive mt-3">
+ Tabla de resultados filtrados -->
+<!-- <div class="table-responsive mt-3">
   <table class="table table-striped table-bordered table-hover">
     <thead>
       <tr>
@@ -432,12 +440,28 @@
      
     </tbody>
   </table>
-</div>
+</div> --> 
 
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const fechaInput = document.getElementById("Datereserva");
+
+    // 👉 Establecer la fecha mínima (hoy)
+    const hoy = new Date().toISOString().split("T")[0];
+    fechaInput.setAttribute("min", hoy);
+
+    // 👉 Validación: si intentan poner una fecha pasada manualmente
+    fechaInput.addEventListener("change", () => {
+      if (fechaInput.value < hoy) {
+        alert("⚠️ No puedes seleccionar una fecha pasada.");
+        fechaInput.value = hoy; // Resetear a hoy
+      }
+    });
+  });
+
 
         function getImagenPorOcasion(ocasion) {
     const imagenes = {
@@ -1398,7 +1422,16 @@ function guardarNew() {
         localStorage.setItem("mesas", JSON.stringify(mesas));
     }
 
-    // Guardar reservas en localStorage
+ const modal = bootstrap.Modal.getInstance(document.getElementById("modalReservas"));
+            modal.hide();
+    Swal.fire({
+        title: "Reserva guardada correctamente",
+        icon: "success",
+        draggable: true
+    });
+
+
+
     localStorage.setItem("reservas", JSON.stringify(datos));
 
     // Refrescar UI
@@ -1408,11 +1441,9 @@ function guardarNew() {
     ocultarFormularioNew();
     limpiarFormularioNew();
 
-    Swal.fire({
-        title: "Reserva guardada correctamente",
-        icon: "success",
-        draggable: true
-    });
+ 
+
+
 }
 
 
@@ -1520,118 +1551,323 @@ function guardarNew() {
 
 
         // Pintar reservas en la tabla
-        function pintarDatosNew() {
-            const infoData = document.getElementById("infoData");
-            const filtroConfirmadas = document.getElementById("filtroConfirmadas");
+//         function pintarDatosNew() {
+//             const infoData = document.getElementById("infoData");
+//             const filtroConfirmadas = document.getElementById("filtroConfirmadas");
 
-            infoData.innerHTML = "";         // Limpia tabla principal
-            filtroConfirmadas.innerHTML = ""; // Limpia la sección de confirmadas
+//             infoData.innerHTML = "";         // Limpia tabla principal
+//             filtroConfirmadas.innerHTML = ""; // Limpia la sección de confirmadas
 
-            datos.forEach((item, i) => {
-                // 🎯 Crear fila normal
-                let tr = document.createElement("tr");
+//             datos.forEach((item, i) => {
+//                 // 🎯 Crear fila normal
+//                 let tr = document.createElement("tr");
                 
-                // Calcular tiempo transcurrido si hay startTime
-                let tiempoInfo = "";
-                if (item.startTime && (item.estado === "Confirmada" || item.estado === "Ocupada" || item.estado === "Pendiente")) {
-                    tiempoInfo = `<td id="temporizador-${item.id}" class="temporizador-info">⌛ Calculando...</td>`;
-                } else {
-                    tiempoInfo = "<td>-</td>";
-                }
+//                 // Calcular tiempo transcurrido si hay startTime
+//                 let tiempoInfo = "";
+//                 if (item.startTime && (item.estado === "Confirmada" || item.estado === "Ocupada" || item.estado === "Pendiente")) {
+//                     tiempoInfo = `<td id="temporizador-${item.id}" class="temporizador-info">⌛ Calculando...</td>`;
+//                 } else {
+//                     tiempoInfo = "<td>-</td>";
+//                 }
                 
-                tr.innerHTML = `
-                    <td>${item.id}</td>
-                    <td>${item.mesa}</td>
-                    <td>${item.cliente}</td>
-                    <td>${item.personas}</td>
-                    <td>${item.fecha}</td>
-                    <td>${item.hora || '-'}</td>
-                    <td>${item.duracion ? (item.duracion / 6) + ' h' : '-'}</td>
-                    <td>${item.ocasion} 
-                        <br>
-                        ${getImagenPorOcasion(item.ocasion)}
-                        </td>
+//                 tr.innerHTML = `
+
+//                     <td>${item.id}</td>
+//                     <td>${item.mesa}</td>
+//                     <td>${item.cliente}</td>
+//                     <td>${item.personas}</td>
+//                     <td>${item.fecha}</td>
+//                     <td>${item.hora || '-'}</td>
+//                     <td>${item.duracion ? (item.duracion / 6) + ' h' : '-'}</td>
+//                     <td>${item.ocasion} 
+//                         <br>
+//                         ${getImagenPorOcasion(item.ocasion)}
+//                         </td>
                   
-                    <td>${item.notas}</td>
-                    <td>
-                        <span class="badge ${item.estado === 'Confirmada' ? 'bg-success' : 
-                                        item.estado === 'Pendiente' ? 'bg-warning' : 
-                                        item.estado === 'Cancelada' ? 'bg-danger' : 
-                                        item.estado === 'Ocupada' ? 'bg-primary' : 'bg-secondary'}">
-                            ${item.estado}
-                        </span>
-                    </td>
-                    ${tiempoInfo}
-                 <td>
-    ${item.estado !== 'Finalizada' ? 
-        `<button class="btn btn-warning btn-sm" onclick="editarReservaNew(${i})">✏️ Editar</button>` 
-        : ''}
-    <button class="btn btn-danger btn-sm" onclick="eliminarReservaNew(${i})">🗑️ Eliminar</button>
-    ${item.estado === 'Confirmada' || item.estado === 'Ocupada' ? 
-        `<button class="btn btn-success btn-sm mt-1" onclick="pagarCuenta(${i})">💵 Pagar</button>` 
-        : ''}
-</td>
+//                     <td>${item.notas}</td>
+//                     <td>
+//                         <span class="badge ${item.estado === 'Confirmada' ? 'bg-success' : 
+//                                         item.estado === 'Pendiente' ? 'bg-warning' : 
+//                                         item.estado === 'Cancelada' ? 'bg-danger' : 
+//                                         item.estado === 'Ocupada' ? 'bg-primary' : 'bg-secondary'}">
+//                             ${item.estado}
+//                         </span>
+//                     </td>
+//                     ${tiempoInfo}
+//                  <td>
+//     ${item.estado !== 'Finalizada' ? 
+//         `<button class="btn btn-warning btn-sm" onclick="editarReservaNew(${i})">✏️ Editar</button>` 
+//         : ''}
+//     <button class="btn btn-danger btn-sm" onclick="eliminarReservaNew(${i})">🗑️ Eliminar</button>
+//     ${item.estado === 'Confirmada' || item.estado === 'Ocupada' ? 
+//         `<button class="btn btn-success btn-sm mt-1" onclick="pagarCuenta(${i})">💵 Pagar</button>` 
+//         : ''}
+// </td>
 
-                `;
-                infoData.appendChild(tr);
+//                 `;
+//                 infoData.appendChild(tr);
 
-                // Iniciar temporizador si corresponde
-                if (item.startTime && (item.estado === "Confirmada" || item.estado === "Ocupada")) {
-                    iniciarTemporizador(item.id, parseInt(item.startTime), parseInt(item.duracion));
-                }
+//                 // Iniciar temporizador si corresponde
+//                 if (item.startTime && (item.estado === "Confirmada" || item.estado === "Ocupada")) {
+//                     iniciarTemporizador(item.id, parseInt(item.startTime), parseInt(item.duracion));
+//                 }
 
-                // 🎯 Si es confirmada u ocupada, agregamos su info a la sección especial
-                if (item.estado === "Confirmada" || item.estado === "Pendiente") {
-                    let div = document.createElement("div");
-                    div.classList.add("card", "p-2", "mb-2", "border", "rounded");
+//                 // 🎯 Si es confirmada u ocupada, agregamos su info a la sección especial
+//                 if (item.estado === "Confirmada" || item.estado === "Pendiente") {
+//                     let div = document.createElement("div");
+//                     div.classList.add("card", "p-2", "mb-2", "border", "rounded");
                     
-                    if (item.estado === "Confirmada") {
-                        div.classList.add("border-success");
-                        div.style.background = "linear-gradient(to right, #ffe259, #ffa751)";
-                    } else {
-                        div.classList.add("border-primary");
-                        div.style.background = "linear-gradient(to right, #4facfe, #00f2fe)";
-                        div.style.color = "white";
-                    }
+//                     if (item.estado === "Confirmada") {
+//                         div.classList.add("border-success");
+//                         div.style.background = "linear-gradient(to right, #ffe259, #ffa751)";
+//                     } else {
+//                         div.classList.add("border-primary");
+//                         div.style.background = "linear-gradient(to right, #4facfe, #00f2fe)";
+//                         div.style.color = "white";
+//                     }
                     
-                    // Calcular tiempo restante si hay startTime
-                    let tiempoRestanteInfo = "";
-                    if (item.startTime && item.duracion) {
-                        const ahora = Date.now();
-                        const tiempoTranscurrido = Math.floor((ahora - item.startTime) / 60000);
-                        const tiempoRestante = item.duracion - tiempoTranscurrido;
+//                     // Calcular tiempo restante si hay startTime
+//                     let tiempoRestanteInfo = "";
+//                     if (item.startTime && item.duracion) {
+//                         const ahora = Date.now();
+//                         const tiempoTranscurrido = Math.floor((ahora - item.startTime) / 60000);
+//                         const tiempoRestante = item.duracion - tiempoTranscurrido;
                         
-                        if (tiempoRestante > 0) {
-                            tiempoRestanteInfo = `<br><strong>Tiempo restante:</strong> ${tiempoRestante} minutos`;
-                        } else {
-                            tiempoRestanteInfo = `<br><strong class="temporizador-activo">⏰ Tiempo cumplido</strong>`;
-                        }
-                    }
+//                         if (tiempoRestante > 0) {
+//                             tiempoRestanteInfo = `<br><strong>Tiempo restante:</strong> ${tiempoRestante} minutos`;
+//                         } else {
+//                             tiempoRestanteInfo = `<br><strong class="temporizador-activo">⏰ Tiempo cumplido</strong>`;
+//                         }
+//                     }
                     
-                    div.innerHTML = `
-                        <h4>Mesa ${item.estado.toLowerCase()}</h4>
-                        <strong>Mesa:</strong> ${item.mesa} |
-                        <strong>Cliente:</strong> ${item.cliente} |
-                        <strong>Hora:</strong> ${item.hora}${tiempoRestanteInfo}
-                    `;
+//                     div.innerHTML = `
+//                         <h4>Mesa ${item.estado.toLowerCase()}</h4>
+//                         <strong>Mesa:</strong> ${item.mesa} |
+//                         <strong>Cliente:</strong> ${item.cliente} |
+//                         <strong>Hora:</strong> ${item.hora}${tiempoRestanteInfo}
+//                     `;
 
-                    filtroConfirmadas.appendChild(div);
-                } else if (item.estado === "Pendiente") {
-                    let div2 = document.createElement("div");
-                    div2.classList.add("card", "p-2", "mb-2", "border", "border-warning", "rounded");
-                    div2.style.background = "rgb(255, 255, 200)";
-                    div2.innerHTML = `
-                        <h4>Reserva Pendiente</h4>
-                        <strong>Mesa:</strong> ${item.mesa} |
-                        <strong>Cliente:</strong> ${item.cliente} |
-                        <strong>Fecha:</strong> ${item.fecha} |
-                        <strong>Hora:</strong> ${item.hora}
-                    `;
+//                     filtroConfirmadas.appendChild(div);
+//                 } else if (item.estado === "Pendiente") {
+//                     let div2 = document.createElement("div");
+//                     div2.classList.add("card", "p-2", "mb-2", "border", "border-warning", "rounded");
+//                     div2.style.background = "rgb(255, 255, 200)";
+//                     div2.innerHTML = `
+//                         <h4>Reserva Pendiente</h4>
+//                         <strong>Mesa:</strong> ${item.mesa} |
+//                         <strong>Cliente:</strong> ${item.cliente} |
+//                         <strong>Fecha:</strong> ${item.fecha} |
+//                         <strong>Hora:</strong> ${item.hora}
+//                     `;
 
-                    filtroConfirmadas.appendChild(div2);
-                         }
-            });
+//                     filtroConfirmadas.appendChild(div2);
+//                          }
+//             });
+//         }
+
+function pintarDatosNew() {
+    const infoData = document.getElementById("infoData");
+    const filtroConfirmadas = document.getElementById("filtroConfirmadas");
+
+    const fechaSeleccionada = document.getElementById("filtroFecha")?.value || "";
+    const estadoSeleccionado = document.getElementById("filtroEstado")?.value || "";
+
+    infoData.innerHTML = "";         
+    filtroConfirmadas.innerHTML = ""; 
+
+    // 🔎 Aplicar filtros
+    let reservasFiltradas = datos;
+
+    if (fechaSeleccionada) {
+        reservasFiltradas = reservasFiltradas.filter(item => item.fecha === fechaSeleccionada);
+    }
+
+    if (estadoSeleccionado) {
+        reservasFiltradas = reservasFiltradas.filter(item => item.estado === estadoSeleccionado);
+    }
+
+    // Si no hay resultados
+    if (reservasFiltradas.length === 0) {
+        infoData.innerHTML = `<tr><td colspan="12" class="text-center">No hay reservas con los filtros aplicados</td></tr>`;
+        return;
+    }
+
+    reservasFiltradas.forEach((item, i) => {
+        let tr = document.createElement("tr");
+
+        // Calcular tiempo
+        let tiempoInfo = "";
+        if (item.startTime && (item.estado === "Confirmada" || item.estado === "Ocupada" || item.estado === "Pendiente")) {
+            tiempoInfo = `<td id="temporizador-${item.id}" class="temporizador-info">⌛ Calculando...</td>`;
+        } else {
+            tiempoInfo = "<td>-</td>";
         }
+
+        tr.innerHTML = `
+            <td>${item.id}</td>
+            <td>${item.mesa}</td>
+            <td>${item.cliente}</td>
+            <td>${item.personas}</td>
+            <td>${item.fecha}</td>
+            <td>${item.hora || '-'}</td>
+            <td>${item.duracion ? (item.duracion / 6) + ' h' : '-'}</td>
+            <td>${item.ocasion}<br>${getImagenPorOcasion(item.ocasion)}</td>
+            <td>${item.notas}</td>
+            <td>
+                <span class="badge ${item.estado === 'Confirmada' ? 'bg-success' : 
+                                    item.estado === 'Pendiente' ? 'bg-warning' : 
+                                    item.estado === 'Cancelada' ? 'bg-danger' : 
+                                    item.estado === 'Ocupada' ? 'bg-primary' : 'bg-secondary'}">
+                    ${item.estado}
+                </span>
+            </td>
+            ${tiempoInfo}
+            <td>
+                ${item.estado !== 'Finalizada' ? 
+                    `<button class="btn btn-warning btn-sm" onclick="editarReservaNew(${i})">✏️ Editar</button>` 
+                    : ''}
+                <button class="btn btn-danger btn-sm" onclick="eliminarReservaNew(${i})">🗑️ Eliminar</button>
+                ${item.estado === 'Confirmada' || item.estado === 'Ocupada' ? 
+                    `<button class="btn btn-success btn-sm mt-1" onclick="pagarCuenta(${i})">💵 Pagar</button>` 
+                    : ''}
+            </td>
+        `;
+        infoData.appendChild(tr);
+
+        // Temporizador
+        if (item.startTime && (item.estado === "Confirmada" || item.estado === "Ocupada")) {
+            iniciarTemporizador(item.id, parseInt(item.startTime), parseInt(item.duracion));
+        }
+
+        // Tarjetas confirmadas/pendientes
+        if (item.estado === "Confirmada" || item.estado === "Pendiente") {
+            let div = document.createElement("div");
+            div.classList.add("card", "p-2", "mb-2", "border", "rounded");
+
+            if (item.estado === "Confirmada") {
+                div.classList.add("border-success");
+                div.style.background = "linear-gradient(to right, #ffe259, #ffa751)";
+            } else {
+                div.classList.add("border-primary");
+                div.style.background = "linear-gradient(to right, #4facfe, #00f2fe)";
+                div.style.color = "white";
+            }
+
+            div.innerHTML = `
+                <h4>Mesa ${item.estado.toLowerCase()}</h4>
+                <strong>Mesa:</strong> ${item.mesa} |
+                <strong>Cliente:</strong> ${item.cliente} |
+                <strong>Hora:</strong> ${item.hora}
+            `;
+            filtroConfirmadas.appendChild(div);
+        }
+
+   Swal.fire({
+        title: "Elige el filtro fecha y estado para poder ver tus reservas",
+        icon: "success",
+        draggable: true
+    });
+    });
+}
+
+
+// function pintarDatosNew() {
+//     const infoData = document.getElementById("infoData");
+//     const filtroConfirmadas = document.getElementById("filtroConfirmadas");
+//     const contenedorFiltradas = document.getElementById("contenedorReservasFiltradas");
+
+//     // Limpiar
+//     infoData.innerHTML = "";
+//     filtroConfirmadas.innerHTML = "";
+//     contenedorFiltradas.innerHTML = "";
+
+//     // Obtener fecha seleccionada en el filtro
+//     const filtroFecha = document.getElementById("filtroFecha").value;
+
+//     datos.forEach((item, i) => {
+//         // 🎯 Crear fila normal
+//         let tr = document.createElement("tr");
+
+//         // Calcular tiempo transcurrido si hay startTime
+//         let tiempoInfo = "";
+//         if (item.startTime && (item.estado === "Confirmada" || item.estado === "Ocupada" || item.estado === "Pendiente")) {
+//             tiempoInfo = `<td id="temporizador-${item.id}" class="temporizador-info">⌛ Calculando...</td>`;
+//         } else {
+//             tiempoInfo = "<td>-</td>";
+//         }
+
+//         tr.innerHTML = `
+//             <td>${item.id}</td>
+//             <td>${item.mesa}</td>
+//             <td>${item.cliente}</td>
+//             <td>${item.personas}</td>
+//             <td>${item.fecha}</td>
+//             <td>${item.hora || '-'}</td>
+//             <td>${item.duracion ? (item.duracion / 6) + ' h' : '-'}</td>
+//             <td>${item.ocasion} 
+//                 <br>
+//                 ${getImagenPorOcasion(item.ocasion)}
+//             </td>
+//             <td>${item.notas}</td>
+//             <td>
+//                 <span class="badge ${item.estado === 'Confirmada' ? 'bg-success' : 
+//                                     item.estado === 'Pendiente' ? 'bg-warning' : 
+//                                     item.estado === 'Cancelada' ? 'bg-danger' : 
+//                                     item.estado === 'Ocupada' ? 'bg-primary' : 'bg-secondary'}">
+//                     ${item.estado}
+//                 </span>
+//             </td>
+//             ${tiempoInfo}
+//             <td>
+//                 ${item.estado !== 'Finalizada' ? 
+//                     `<button class="btn btn-warning btn-sm" onclick="editarReservaNew(${i})">✏️ Editar</button>` 
+//                     : ''}
+//                 <button class="btn btn-danger btn-sm" onclick="eliminarReservaNew(${i})">🗑️ Eliminar</button>
+//                 ${item.estado === 'Confirmada' || item.estado === 'Ocupada' ? 
+//                     `<button class="btn btn-success btn-sm mt-1" onclick="pagarCuenta(${i})">💵 Pagar</button>` 
+//                     : ''}
+//             </td>
+//         `;
+
+//         // 👉 Siempre pintamos todas en la tabla principal
+//         infoData.appendChild(tr);
+
+//         // 👉 Si hay filtro de fecha y coincide, también lo pintamos en tabla de filtradas
+//         if (filtroFecha && item.fecha === filtroFecha) {
+//             let trFiltrada = tr.cloneNode(true); // clonamos fila
+//             contenedorFiltradas.appendChild(trFiltrada);
+//         }
+
+//         // Iniciar temporizador si corresponde
+//         if (item.startTime && (item.estado === "Confirmada" || item.estado === "Ocupada")) {
+//             iniciarTemporizador(item.id, parseInt(item.startTime), parseInt(item.duracion));
+//         }
+
+//         // 🎯 Si es confirmada u ocupada, agregamos su info a la sección especial
+//         if (item.estado === "Confirmada" || item.estado === "Pendiente") {
+//             let div = document.createElement("div");
+//             div.classList.add("card", "p-2", "mb-2", "border", "rounded");
+            
+//             if (item.estado === "Confirmada") {
+//                 div.classList.add("border-success");
+//                 div.style.background = "linear-gradient(to right, #ffe259, #ffa751)";
+//             } else {
+//                 div.classList.add("border-primary");
+//                 div.style.background = "linear-gradient(to right, #4facfe, #00f2fe)";
+//                 div.style.color = "white";
+//             }
+
+//             div.innerHTML = `
+//                 <h4>Mesa ${item.estado.toLowerCase()}</h4>
+//                 <strong>Mesa:</strong> ${item.mesa} |
+//                 <strong>Cliente:</strong> ${item.cliente} |
+//                 <strong>Hora:</strong> ${item.hora}
+//             `;
+
+//             filtroConfirmadas.appendChild(div);
+//         }
+//     });
+// }
 
         // Editar reserva
      // Variable global para saber cuál reserva estamos editando
@@ -1654,13 +1890,14 @@ function editarReservaNew(i) {
     document.getElementById("Notas").value = item.notas;
     document.getElementById("estado").value = item.estado;
 
-    // Mostrar formulario
-     document.getElementById("formulario").classList.remove("d-none");
-    document.getElementById("formulario").style.display = "block";
+    // ✅ Mostrar modal usando Bootstrap
+    const modal = new bootstrap.Modal(document.getElementById("modalReservas"));
+    modal.show();
 
     // Guardamos el índice que estamos editando
     editIndexReserva = i;
 }
+
 
 
 
@@ -1781,6 +2018,7 @@ function editarReservaNew(i) {
     </script>
 </body>
 </html>
+
 
 
 
