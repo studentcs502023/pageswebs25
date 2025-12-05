@@ -1,132 +1,154 @@
 <template>
-    <div class="color">
+  <div class="inicio">
+    <div class="contenido">
+      <!-- Título -->
+      <div class="titulo">
+        <h1 class="titulo-principal">AHORCADO</h1>
+        <p class="subtitulo">Adivina la palabra antes de que sea tarde</p>
+      </div>
 
-        <div class="center">
-<div class="tittle" style="display: flex; align-items: center; gap: 20px;">
-<div style="display: flex; align-items: center; gap: 20px;">
-    <pre style="margin: 0; ">
-  +---+
-  |   |
-  O   |
- /|\  |
- / \  |
-      |
-=========
-    </pre>
+      <!-- Imagen -->
+      <div class="imagen-container">
+        <img src="https://cdn.pixabay.com/photo/2017/08/25/18/48/watercolor-2681039_640.jpg" 
+             alt="Juego del ahorcado" 
+             class="imagen-juego">
+      </div>
 
-    <h1 style="margin: 0; ">AHORCADO</h1>
-
-  
-</div>
-
-  
-
-
-</div>
-
-
-
-<div class="img">
-    <img src="/public/iamage.png" alt="imagen">
-</div>
-<q-btn
-  label="Play Now"
-  to="/categorias"
-  glossy
-  color="purple"
-/>
-
-
-</div>
-
-
+      <!-- Botón -->
+      <div class="boton-container">
+        <button class="boton-jugar" @click="$router.push('/juego')">
+          <span class="icono">▶</span>
+          <span class="texto">JUGAR</span>
+        </button>
+      </div>
     </div>
+  </div>
 </template>
 
-<style>
-.color{
-    background: aliceblue; /* Gris muy oscuro con tono azulado */
-    width: 100%;
-    height: 87vh;
-    overflow-y: hidden;
+<style >
+.inicio {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
-.center{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-     
-
-}
-.tittle{
-    display: flex;
-    flex-direction: column;
+.contenido {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
+  max-width: 500px;
+  width: 100%;
 }
 
-.img{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.titulo-principal {
+  margin: 0;
+  font-size: 4rem;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
 }
-.img img{
-    width: 500px;
-    height: auto;
+
+.subtitulo {
+  font-size: 1.2rem;
+  color: #a0a0d0;
+  margin-top: 10px;
 }
 
-</style>
+.imagen-container {
+  width: 300px;
+  height: 200px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
 
+.imagen-juego {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
 
-<script setup>
+.imagen-juego:hover {
+  transform: scale(1.05);
+}
 
-</script>
+.boton-jugar {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  border: none;
+  padding: 16px 50px;
+  border-radius: 50px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(106, 17, 203, 0.4);
+}
 
+.boton-jugar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(106, 17, 203, 0.6);
+}
 
-<!-- <template>
-  <q-layout view="lHh Lpr lFf" class="bg-white">
+.boton-jugar:active {
+  transform: translateY(-1px);
+}
 
+.icono {
+  font-size: 1.5rem;
+}
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      class="bg-grey-2"
-    >
-
-          <q-btn color="primary" label="Inicio" to="/inicio"/><br>
-       <q-btn color="primary" label="Categorias" to="/categorias"/><br>
-       <q-btn color="primary" label="Nivel" to="/nivel"/><br>
-        <q-btn color="primary" label="Animales" to="/animales"/><br>
-       <q-btn color="primary" label="Score" to="/score"/><br>
-      
-    </q-drawer>
-
-    <q-page-container>
-      <router-view />
-      <h1>holacocmo fsad</h1>
-
-    </q-page-container>
-  </q-layout>
-</template>
-
-<script>
-import { ref } from 'vue'
-
-export default {
-  name: 'MyLayout',
-
-  setup () {
-    const leftDrawerOpen = ref(false)
-
-    function toggleLeftDrawer () {
-      leftDrawerOpen.value = !leftDrawerOpen.value
-    }
-
-    return {
-      leftDrawerOpen,
-      toggleLeftDrawer
-    }
+@media (max-width: 768px) {
+  .titulo-principal {
+    font-size: 3rem;
+  }
+  
+  .imagen-container {
+    width: 250px;
+    height: 180px;
+  }
+  
+  .boton-jugar {
+    font-size: 1.1rem;
+    padding: 14px 40px;
   }
 }
-</script> -->
+
+@media (max-width: 480px) {
+  .titulo-principal {
+    font-size: 2.5rem;
+  }
+  
+  .subtitulo {
+    font-size: 1rem;
+  }
+  
+  .imagen-container {
+    width: 200px;
+    height: 150px;
+  }
+  
+  .contenido {
+    gap: 30px;
+  }
+}
+</style>
+
+<script setup>
+// Lógica mínima - solo navegación
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+</script>
