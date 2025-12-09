@@ -2,21 +2,14 @@
   <div class="inicio">
     <div class="contenido">
       <!-- Título -->
-      <div class="titulo">
-        <h1 class="titulo-principal">AHORCADO</h1>
-        <p class="subtitulo">Adivina la palabra antes de que sea tarde</p>
-      </div>
+    
 
       <!-- Imagen -->
-      <div class="imagen-container">
-        <img src="https://cdn.pixabay.com/photo/2017/08/25/18/48/watercolor-2681039_640.jpg" 
-             alt="Juego del ahorcado" 
-             class="imagen-juego">
-      </div>
+
 
       <!-- Botón -->
       <div class="boton-container">
-        <button class="boton-jugar" @click="$router.push('/juego')">
+        <button class="boton-jugar" @click="$router.push('/categorias')">
           <span class="icono">▶</span>
           <span class="texto">JUGAR</span>
         </button>
@@ -26,9 +19,15 @@
 </template>
 
 <style >
+
+.inicio{
+background-image: url("./imgfondo.png");
+background-size: contain;
+background-position: center;
+}
+
 .inicio {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   display: flex;
   justify-content: center;
   align-items: center;

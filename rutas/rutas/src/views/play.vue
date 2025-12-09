@@ -1,5 +1,23 @@
 <template>
   <div class="juego-container">
+    <!-- CONTENEDOR DEL AHORCADO -->
+    <div class="ahorcado-wrap">
+      <div class="ahorcado" :style="{ width: width + 'px', height: height + 'px' }">
+        <!-- r1 es la base (madera) - siempre visible detrás -->
+        <img class="base" src="./r1.PNG" alt="base" />
+
+        <!-- piezas superpuestas (por orden de aparición) -->
+        <img v-show="parts[1]" class="piece p2" src="./r2.PNG" alt="soga y madera" />
+        <img v-show="parts[2]" class="piece p3" src="./r3.PNG" alt="cabeza 1" />
+        <img v-show="parts[3]" class="piece p4" src="./r4.PNG" alt="cabeza 2" />
+        <img v-show="parts[4]" class="piece p5" src="./r5.PNG" alt="cuello" />
+        <img v-show="parts[5]" class="piece p6" src="./r6.PNG" alt="tronco" />
+        <img v-show="parts[6]" class="piece p7" src="./r7.PNG" alt="brazo izquierdo" />
+        <img v-show="parts[7]" class="piece p8" src="./r8.PNG" alt="brazo derecho" />
+        <img v-show="parts[8]" class="piece p9" src="./r9.PNG" alt="pierna izquierda" />
+        <img v-show="parts[9]" class="piece p10" src="./r10.PNG" alt="pierna derecha" />
+      </div>
+    </div>
 
     <!-- INTENTOS RESTANTES Y PUNTUACIÓN -->
     <div class="info-juego">
@@ -11,7 +29,7 @@
       
       <div class="puntuacion">
         <span class="emoji">⭐</span>
-        <span class="contador">0</span>
+        <span class="contador">{{ calcularPuntos() }}</span>
         <span class="texto">Puntos</span>
       </div>
     </div>
@@ -71,6 +89,10 @@ const teclado = ref([
   "n","o","p","q","r","s","t","u","v","w","x","y","z"
 ]);
 
+// Control de imágenes del ahorcado
+const parts = ref(Array(10).fill(false)); 
+// parts[1..9] = imágenes r2..r10
+
 // PALABRA Y LETRAS
 const palabraAleatoria = ref("");
 const letrasEncontradas = ref([]);
@@ -80,29 +102,65 @@ const letrasIncorrectas = ref([]);
 
 // ESTADO DEL JUEGO
 const intentosRestantes = ref(0);
+const erroresCometidos = ref(0);
 const juegoTerminado = ref(false);
 const mensaje = ref("");
+
+// VARIABLES PARA EL AHORCADO
+const width = 340;
+const height = 420;
+const maxErrores = 9; // Máximo de errores posibles
+
+// Contador de piezas visibles (solo para depuración)
+const visibleCount = computed(() => parts.value.slice(1).filter(Boolean).length);
 
 // ON MOUNTED
 onMounted(() => {
   iniciarJuego();
 });
 
+// FUNCIÓN PARA MOSTRAR LA SIGUIENTE IMAGEN DEL AHORCADO
+function mostrarSiguienteImagen() {
+  // Buscar la primera imagen que no esté visible y mostrarla
+  for (let i = 1; i <= maxErrores; i++) {
+    if (!parts.value[i]) {
+      parts.value[i] = true;
+      break;
+    }
+  }
+}
+
+// FUNCIÓN PARA REINICIAR LAS IMÁGENES
+function resetImagenes() {
+  for (let i = 1; i <= maxErrores; i++) {
+    parts.value[i] = false;
+  }
+}
+
+// CALCULAR PUNTOS
+function calcularPuntos() {
+  if (juegoTerminado.value && intentosRestantes.value > 0) {
+    // Ganó: puntos = letras correctas * intentos restantes
+    return letrasCorrectas.value.length * intentosRestantes.value;
+  }
+  return 0;
+}
+
 function iniciarJuego() {
   const nivel = localStorage.getItem("nivelSeleccionado");
   const categoria = localStorage.getItem("categoriaSeleccionada");
   const palabrasCategoria = localStorage.getItem("palabrasCategoria");
 
-  console.log("Nivel recibido:", nivel);
-  console.log("Categoría recibida:", categoria);
-  console.log("Palabras recibidas:", palabrasCategoria);
-
-  // Reiniciar estado
+  // Reiniciar estado del juego
   letrasUsadas.value = [];
   letrasCorrectas.value = [];
   letrasIncorrectas.value = [];
   juegoTerminado.value = false;
   mensaje.value = "";
+  erroresCometidos.value = 0;
+  
+  // Reiniciar imágenes del ahorcado
+  resetImagenes();
 
   if (!palabrasCategoria) {
     console.warn("No hay palabras guardadas en localStorage");
@@ -148,7 +206,7 @@ const reglasTexto = computed(() => {
   }
 });
 
-// FUNCION PARA PRESIONAR LETRA
+// FUNCIÓN MODIFICADA PARA PRESIONAR LETRA
 function presionarLetra(letra) {
   if (juegoTerminado.value || letrasUsadas.value.includes(letra)) return;
 
@@ -159,6 +217,11 @@ function presionarLetra(letra) {
   if (!palabraAleatoria.value.toLowerCase().includes(letra.toLowerCase())) {
     letrasIncorrectas.value.push(letra);
     intentosRestantes.value--;
+    erroresCometidos.value++;
+    
+    // MOSTRAR LA SIGUIENTE IMAGEN DEL AHORCADO
+    mostrarSiguienteImagen();
+    
     mensaje.value = `❌ Letra "${letra}" incorrecta. Te quedan ${intentosRestantes.value} intentos`;
 
     if (intentosRestantes.value <= 0) {
@@ -182,7 +245,7 @@ function presionarLetra(letra) {
   // Verificar si ganó
   if (!letrasEncontradas.value.includes("_")) {
     juegoTerminado.value = true;
-    mensaje.value = `🎉 ¡Ganaste! ¡Felicidades!`;
+    mensaje.value = `🎉 ¡Ganaste! ¡Felicidades! Obtuviste ${calcularPuntos()} puntos`;
   }
 }
 
@@ -203,6 +266,54 @@ function reiniciarJuego() {
   color: white;
   font-family: 'Segoe UI', 'Arial', sans-serif;
 }
+
+/* CONTENEDOR DEL AHORCADO */
+.ahorcado-wrap {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.ahorcado {
+  position: relative;
+  background: transparent;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* la base (r1) ocupa todo el contenedor */
+.ahorcado img.base {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* piezas superpuestas */
+.ahorcado img.piece {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Capas para las imágenes */
+.ahorcado img.p2 { z-index: 2; }
+.ahorcado img.p3 { z-index: 3; }
+.ahorcado img.p4 { z-index: 4; }
+.ahorcado img.p5 { z-index: 5; }
+.ahorcado img.p6 { z-index: 6; }
+.ahorcado img.p7 { z-index: 7; }
+.ahorcado img.p8 { z-index: 8; }
+.ahorcado img.p9 { z-index: 9; }
+.ahorcado img.p10 { z-index: 10; }
 
 /* INFO DEL JUEGO */
 .info-juego {

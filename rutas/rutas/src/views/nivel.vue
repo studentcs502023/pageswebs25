@@ -34,30 +34,37 @@
       <p class="categoria">Categoría: {{ respuesta }}</p>
     </div>
 
-    <div class="niveles">
+ <div class="niveles">
 
-      <!-- TARJETA FÁCIL -->
-      <div class="card" @click="seleccionarNivel('facil')">
-        <img src="https://i.gifer.com/7Im6.gif" alt="Fácil" class="gif" />
-        <h2>Fácil</h2>
-        <p>Palabras sencillas, tienes 14 intentos, si la palabra es correcta se oculta</p>
-      </div>
+  <!-- FÁCIL -->
+  <div class="card" @click="seleccionarNivel('facil')">
+    <div class="card-img mitad" :style="imgVar2"></div>
 
-      <!-- TARJETA MEDIO -->
-      <div class="card" @click="seleccionarNivel('medio')">
-        <img src="https://i.gifer.com/4Q2O.gif" alt="Medio" class="gif" />
-        <h2>Medio</h2>
-        <p>Un poco más difícil, tienes 10 intentos con una pista</p>
-      </div>
+    <h2>Fácil</h2>
+    <p>Palabras sencillas, tienes 14 intentos, si la palabra es correcta se oculta</p>
+  </div>
 
-      <!-- TARJETA DIFÍCIL -->
-      <div class="card" @click="seleccionarNivel('experto')">
-        <img src="https://i.gifer.com/3aW3.gif" alt="Difícil" class="gif" />
-        <h2>Difícil</h2>
-        <p>Palabras largas y complejas, tienes 9 intentos solo tienes una pista en el octavo intento</p>
-      </div>
+  <!-- MEDIO -->
+  <div class="card" @click="seleccionarNivel('medio')">
+    <div class="card-img mitad" :style="imgVar1"></div>
 
-    </div>
+    <h2>Medio</h2>
+    <p>Un poco más difícil, tienes 10 intentos con una pista</p>
+  </div>
+
+  <!-- DIFÍCIL -->
+  <div class="card" @click="seleccionarNivel('experto')">
+    <div class="card-img mitad"  :style="imgVar"></div>
+
+    <h2>Difícil</h2>
+    <p>Palabras largas y complejas, tienes 9 intentos solo tienes una pista en el octavo intento</p>
+  </div>
+
+</div>
+
+
+
+
 <div class="buton">
      <q-btn class="glossy" rounnded color="deep-orange" 
      label="jugar ahora" to="/play"/>
@@ -66,15 +73,15 @@
 
   </div>
 </template>
-<style >
-/* Fondo general blanco */
+
+<style>
 .contenedor {
-  background: #ffffff;
   min-height: 100vh;
   padding: 40px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
+background: linear-gradient(135deg, #1a8de0cb, #5598d3, #2f6091);
 }
 
 /* Encabezado */
@@ -86,7 +93,11 @@
 .encabezado h1 {
   font-size: 3rem;
   margin: 0;
-  color: #222;
+color: #9bffb0;
+ text-shadow:
+    0 0 5px rgba(0, 255, 110, 0.6),
+    0 0 10px rgba(0, 255, 110, 0.4),
+    0 0 18px rgba(0, 180, 90, 0.3);
 }
 
 .categoria {
@@ -94,60 +105,99 @@
   color: #555;
 }
 
-/* Tarjetas de niveles */
+/* Contenedor de las tarjetas */
 .niveles {
   display: flex;
-  gap: 25px;
+  gap: 30px;
   justify-content: center;
-  flex-wrap: wrap;
+  margin-bottom: 40px;
 }
 
-/* Cada tarjeta */
+/* TARJETAS */
 .card {
-  background: white;
   width: 260px;
-  padding: 20px;
-  border-radius: 20px;
-  text-align: center;
+  height: 350px;        /* ← altura fija para que 50% funcione perfecto */
+background: linear-gradient(135deg, #1a8de0cb, #5598d3, #2f6091);
+  border-radius: 14px;
+  overflow: hidden;
   cursor: pointer;
-  border: 2px solid #eee;
-  transition: 0.25s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: transform 0.25s;
 }
 
 .card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-  border-color: #d2d2d2;
+  transform: scale(1.05);
 }
 
-/* GIFs */
-.gif {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-  margin-bottom: 10px;
+/* Imagen como FONDO en la MITAD superior */
+.card-img.mitad {
+  height: 40%;
+  background-image: var(--img);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
 }
 
-/* Títulos de tarjetas */
 .card h2 {
-  font-size: 1.8rem;
-  color: #222;
-  margin-bottom: 5px;
+  margin: 15px 0 8px 0;
+  text-align: center;
+
+  /* COLOR VERDE VAMPIRO */
+  color: #9bffb0;
+
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  /* EFECTO DE BRILLO NECROTICO */
+  text-shadow:
+    0 0 5px rgba(0, 255, 110, 0.6),
+    0 0 10px rgba(0, 255, 110, 0.4),
+    0 0 18px rgba(0, 180, 90, 0.3);
 }
 
-/* Subtexto */
+/* --- DESCRIPCIÓN TEMEROSA --- */
 .card p {
-  color: #666;
+  margin: 0 14px 16px;
+  text-align: center;
+
+  color: #caffdf;
   font-size: 1rem;
+  line-height: 1.25;
+
+  opacity: 0.9;
+
+  /* LIGERA VIBRACIÓN DE SOMBRA VERDE */
+  text-shadow:
+    0 0 4px rgba(0, 255, 120, 0.5),
+    0 0 10px rgba(0, 255, 120, 0.3);
+  
+  /* LETRA MÁS MISTERIOSA */
+  letter-spacing: 0.4px;
+}
+
+/* Botón */
+.buton {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
 }
 </style>
 
 
 
+
+
 <script setup>
 import { onMounted, ref } from 'vue';
-
+import Ndeath from './Ndeath.png'   // <-- aquí el bundler procesa la imagen
+import Nespanto from  './Nespanto.png'  
+import Nsusto from  './Nsusto.png'  
+// usamos la variable de estilo CSS con la URL resuelta
+const imgVar = { '--img': `url(${Ndeath})` }
+const imgVar1 = { '--img': `url(${Nespanto})` }
+const imgVar2 = { '--img': `url(${Nsusto})` }
 // const respuesta= ref("")
 // onMounted(() => {
 //   const  data = localStorage.getItem('categoriaSeleccionada')
@@ -179,30 +229,6 @@ import { onMounted, ref } from 'vue';
 
 const nivelS = ref([]);
 
-// function seleccionarNivel(nivel) {
-//   localStorage.setItem("nivelSeleccionado", nivel);
-
-//   if (nivel === "facil") nivelS.value = nivelF;
-//   else if (nivel === "medio") nivelS.value = nivelM;
-//   else if (nivel === "experto") nivelS.value = nivelE;
-
-//   console.log("Nivel seleccionado:", nivelS.value);
-
-//   // ❌ NO LLAMAR guardarPalabrasPorCategoria() aquí
-// }
-
-// function seleccionarNivel(nivel) {
-//   localStorage.setItem("nivelSeleccionado", nivel);
-
-//   if (nivel === "facil") nivelS.value = nivelF;
-//   else if (nivel === "medio") nivelS.value = nivelM;
-//   else if (nivel === "experto") nivelS.value = nivelE;
-
-//   console.log("Nivel seleccionado:", nivelS.value);
-
-//   // ✔ Ahora sí: guardar palabras correctas según el nivel y categoría
-//   guardarPalabrasPorCategoria();
-// }}
 
 function seleccionarNivel(nivel) {
   // Guardar nivel
